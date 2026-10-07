@@ -262,19 +262,14 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   // ---------- disegno ----------
   const cv = document.getElementById('fx'); let ctx = cv.getContext('2d');
   const ease = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
-  const SEQ = {scanEnd: 3800, lamps: 3600, hazeIn: 3200, hazePeak: 4600, hazeOut: 6800, light: 5600, lightEnd: 8400, text: 600};
+  const SEQ = {scanEnd: 3800, lamps: 3600, hazeIn: 3200, hazePeak: 4600, hazeOut: 6800, light: 5600, lightEnd: 8400, text: 8600};
 
-  function hudBox(r, a, scale, labelA) {
+  function hudBox(r, a, scale = 1) {
     let [a0, b0, a1, b1] = r.b; const cx = (a0 + a1) / 2, cy = (b0 + b1) / 2;
     a0 = cx + (a0 - cx) * scale; a1 = cx + (a1 - cx) * scale; b0 = cy + (b0 - cy) * scale; b1 = cy + (b1 - cy) * scale;
     const k = 16; ctx.lineWidth = 1.5; ctx.strokeStyle = `rgba(94,216,255,${a})`; ctx.beginPath();
     ctx.moveTo(a0, b0 + k); ctx.lineTo(a0, b0); ctx.lineTo(a0 + k, b0); ctx.moveTo(a1 - k, b0); ctx.lineTo(a1, b0); ctx.lineTo(a1, b0 + k);
     ctx.moveTo(a1, b1 - k); ctx.lineTo(a1, b1); ctx.lineTo(a1 - k, b1); ctx.moveTo(a0 + k, b1); ctx.lineTo(a0, b1); ctx.lineTo(a0, b1 - k); ctx.stroke();
-    if (labelA <= 0.01) return;
-    ctx.font = '600 13px ui-monospace,monospace';
-    const full = '▸ ' + r.label.toUpperCase(), txt = full.slice(0, Math.ceil(full.length * Math.min(1, labelA * 1.6))), tw = ctx.measureText(full).width;
-    ctx.fillStyle = `rgba(2,8,18,${0.82 * labelA})`; ctx.fillRect(a0, b0 - 24, tw + 12, 19);
-    ctx.fillStyle = `rgba(94,216,255,${labelA})`; ctx.fillText(txt, a0 + 6, b0 - 10);
   }
   function lampLayer(tt) {
     for (const l of lamps) {
@@ -326,9 +321,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     for (const c of cardEls) if (sx < c.x1 && !c.el.classList.contains('on')) c.el.classList.add('on');
     for (const r of hud) {
       const passed = ease((r.b[0] - sx) / 120), a = ease(t / 400) * (1 - passed);
-      // l'etichetta c'è solo mentre la linea attraversa il riquadro, e mai dopo la fine della scansione
-      const label = ease((r.b[2] - sx) / 90) * (1 - ease((r.b[0] - sx) / 90)) * (1 - ease((t - SEQ.scanEnd) / 300));
-      if (a > 0.01) hudBox(r, a, 1 + 0.25 * passed, label);
+      if (a > 0.01) hudBox(r, a, 1 + 0.25 * passed);
     }
     // 2 · foschia sulla condotta
     hazeAmt = t < SEQ.hazeIn ? 0 : t < SEQ.hazePeak ? 22 * ease((t - SEQ.hazeIn) / (SEQ.hazePeak - SEQ.hazeIn))
@@ -590,17 +583,19 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
       ...(r.align === 'center' ? {center: (b.lines[i] || b.lines[0]).x + (b.lines[i] || b.lines[0]).w / 2} : {}),
       baseline: base0 + i * gap}));                          // w = 0: niente adattamento alla larghezza originale
   }
+  const footerEls = [];
   for (const b of TJ.blocks) {
     if (b.role === 'footer') {
       for (const l of b.lines) {
         const d = document.createElement('div'); d.className = 'ln';
         const fs = l.font_px;
-        Object.assign(d.style, {left: (l.x - 0.04 * fs) + 'px', top: (l.baseline - 0.87 * fs) + 'px', fontSize: fs + 'px', fontWeight: l.weight, color: l.color, opacity: '0.45', pointerEvents: 'none'});
+        Object.assign(d.style, {left: (l.x - 0.04 * fs) + 'px', top: (l.baseline - 0.87 * fs) + 'px', fontSize: fs + 'px', fontWeight: l.weight, color: l.color, opacity: '0', transition: 'opacity .8s ease', pointerEvents: 'none'});
         if (l.letter_spacing) d.style.letterSpacing = l.letter_spacing;
         if (l.family) d.style.fontFamily = l.family.includes(',') ? l.family : `"${l.family}", sans-serif`;
         if (l.center) { d.style.left = l.center + 'px'; d.style.transform = 'translateX(-50%)'; }
         d.textContent = l.text;
         textEl.appendChild(d);
+        footerEls.push(d);
       }
       continue;
     }
@@ -809,12 +804,14 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   function hideLast() {
     timers.forEach(clearTimeout); timers = [];
     const u = shown.pop(); if (!u) return;
+    if (!shown.length) footerEls.forEach(el => el.style.opacity = '0');
     itemFx = itemFx.filter(e => e.u !== u);
     if (u.req) showReq([...shown].reverse().find(x => x.req)?.req);
     clearUnit(u); unitEls(u).forEach(el => el.animate([{opacity: 1}, {opacity: 0}], {duration: 220, easing: 'ease-in'}));
   }
   function nextStep() {
     timers.forEach(clearTimeout); timers = [];
+    footerEls.forEach(el => el.style.opacity = '0.45');
     shown.forEach(u => u.segs.forEach(sg => { sg.style.opacity = '1'; sg.style.filter = 'none'; }));
     const u = units.find(x => !shown.includes(x));
     if (u) reveal(u);
@@ -825,9 +822,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   const tFix = q.get('t') ? +q.get('t') : null;
   let t0 = performance.now(), auto = true;
   // il testo arriva da solo, una frase alla volta, sullo stesso orologio degli effetti
-  const due = []; { let atTitle = 600, atBody = SEQ.text; for (const u of units) { if (u.role === 'title') { due.push(atTitle); atTitle += 800; } else { atBody = Math.max(atBody, atTitle); due.push(atBody); atBody += (u.role === 'card' || u.role === 'item') ? 2800 : u.role === 'chart' ? 3400 : u.role === 'req' ? 3600 : 1400; } } }
+  const due = []; { let at = SEQ.text; for (const u of units) { due.push(at); at += u.role === 'title' ? 1000 : (u.role === 'card' || u.role === 'item') ? 2800 : u.role === 'chart' ? 3400 : u.role === 'req' ? 3600 : 1400; } }
   function play() {
     timers.forEach(clearTimeout); timers = []; units.forEach(clearUnit); shown = [];
+    footerEls.forEach(el => el.style.opacity = '0');
     t0 = performance.now(); auto = true;
     cardEls.forEach(c => c.el.classList.remove('on'));
     itemFx = [];
@@ -836,6 +834,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   }
   function autoText(t) {
     if (!auto) return;
+    if (t >= SEQ.text) footerEls.forEach(el => el.style.opacity = '0.45');
     units.forEach((u, i) => { if (t >= due[i] && !shown.includes(u)) reveal(u); });
   }
 
@@ -900,6 +899,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   }
   if (q.get('final')) {
     timers.forEach(clearTimeout);
+    footerEls.forEach(el => { el.style.transition = 'none'; el.style.opacity = '0.45'; });
     units.forEach(u => unitEls(u).forEach(el => { el.style.transition = 'none'; el.style.opacity = '1'; }));
     cardEls.forEach(c => { c.el.classList.add('on'); c.el.style.transition = 'none'; c.el.style.opacity = '1'; c.el.querySelectorAll('h3,p').forEach(x => { x.style.transition = 'none'; x.style.opacity = '1'; }); });
     lblEls.forEach(L => { L.el.style.transition = 'none'; L.el.style.opacity = '1'; });
@@ -909,6 +909,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   }
   if (q.get('reveal') === 'all') {
     auto = false;
+    footerEls.forEach(el => { el.style.opacity = '0.45'; });
     for (const u of units) {
       shown.push(u);
       u.segs.forEach(sg => {
