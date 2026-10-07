@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vista Relatore · Switchable AI Deck</title>
+<style>
+  :root {
+    --bg: #060911;
+    --panel: #0d131f;
+    --rule: #1e293b;
+    --ink: #f1f5f9;
+    --muted: #94a3b8;
+    --hud: #5ED8FF;
+    --teal: #2dd4bf;
+    --amber: #f59e0b;
+    --alert: #ef4444;
+    color-scheme: dark;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    height: 100vh;
+    overflow: hidden;
+  }
+  main {
+    padding: 32px 40px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  aside {
+    background: var(--panel);
+    border-left: 1px solid var(--rule);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+  }
+  .act-badge {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .key-card {
+    background: rgba(45, 212, 191, 0.1);
+    border: 1px solid rgba(45, 212, 191, 0.3);
+    padding: 14px 18px;
+    border-radius: 8px;
+    color: var(--teal);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .speech-box {
+    background: #020617;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 18px;
+    line-height: 1.6;
+    color: #f8fafc;
+    white-space: pre-wrap;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .card-box {
+    background: #020617;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .num-val { color: var(--teal); font-weight: 600; }
+  .trap-val { color: var(--alert); font-weight: 500; }
+  .bridge-val { color: var(--hud); font-style: italic; }
+  .qa-val { color: #c084fc; font-size: 13px; }
+
+  /* ASIDE WIDGETS */
+  .clock-widget {
+    background: #020617;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .clock-time {
+    font-size: 48px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, monospace;
+    color: #fff;
+  }
+  .clock-status {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .status-ok { color: var(--teal); }
+  .status-warn { color: var(--amber); }
+  .status-late { color: var(--alert); }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+  }
+  button {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  button:hover { background: #334155; }
+  button.primary { background: var(--hud); color: #020617; border-color: var(--hud); }
+  button.primary:hover { filter: brightness(1.15); }
+
+  .next-box {
+    background: #020617;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .next-title { font-size: 14px; color: var(--ink); font-weight: 600; margin-top: 4px; }
+
+  ol.slide-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 38vh;
+    overflow-y: auto;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: #020617;
+    padding: 6px;
+  }
+  ol.slide-list li {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+  }
+  ol.slide-list li:hover { background: #1e293b; color: #fff; }
+  ol.slide-list li.active {
+    background: rgba(94, 216, 255, 0.15);
+    color: var(--hud);
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="act-badge" id="actBadge">ATTO I</div>
+  <h1 id="slideTitle">Caricamento...</h1>
+  <div class="key-card" id="keyMsg">—</div>
+
+  <div>
+    <div class="section-label">🗣️ Cosa Dire (Copione Parlato)</div>
+    <div class="speech-box" id="speechBox">—</div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="card-box">
+      <div class="section-label">📊 Numeri Verificati</div>
+      <div class="num-val" id="numVal">—</div>
+    </div>
+    <div class="card-box">
+      <div class="section-label">🌉 Ponte / Transizione</div>
+      <div class="bridge-val" id="bridgeVal">—</div>
+    </div>
+    <div class="card-box">
+      <div class="section-label">⚠️ Trappola / Cosa NON dire</div>
+      <div class="trap-val" id="trapVal">—</div>
+    </div>
+    <div class="card-box">
+      <div class="section-label">💬 Domanda Spinosa & Risposta</div>
+      <div class="qa-val" id="qaVal">—</div>
+    </div>
+  </div>
+</main>
+
+<aside>
+  <div class="clock-widget">
+    <div class="section-label">⏱️ Timer Talk (15 min)</div>
+    <div class="clock-time" id="clockTime">00:00</div>
+    <div class="clock-status status-ok" id="clockStatus">🟢 In ritmo perfetto</div>
+  </div>
+
+  <div class="btn-row">
+    <button id="btnPrev">← Indietro</button>
+    <button class="primary" id="btnNext">Avanti →</button>
+    <button id="btnReset">Reset</button>
+  </div>
+
+  <div class="next-box">
+    <div class="section-label">Prossima Slide</div>
+    <div class="next-title" id="nextTitle">—</div>
+  </div>
+
+  <div>
+    <div class="section-label" style="margin-bottom:8px">Indice Presentazione (25 Slide)</div>
+    <ol class="slide-list" id="slideList"></ol>
+  </div>
+</aside>
+
+<script>
+let SLIDES = [];
+let curIdx = 0;
+let startTime = Date.now();
+let timerRunning = true;
+const TOTAL_TALK_SEC = 15 * 60;
+
+const chan = new BroadcastChannel('sai-deck');
+
+async function init() {
+  // Carica i dati delle note
+  try {
+    const res = await fetch('deck.html');
+    const text = await res.text();
+    const match = text.match(/window\.DECK_NOTES\s*=\s*(\[[\s\S]*?\]);\s*<\/script>/);
+    if (match) {
+      SLIDES = JSON.parse(match[1]);
+    }
+  } catch (e) {
+    console.error("Impossibile caricare DECK_NOTES:", e);
+  }
+
+  buildList();
+  renderSlide(0);
+
+  chan.onmessage = e => {
+    if (e.data && e.data.type === 'state') {
+      renderSlide(e.data.i);
+    }
+  };
+}
+
+function buildList() {
+  const ol = document.getElementById('slideList');
+  ol.innerHTML = '';
+  SLIDES.forEach((s, i) => {
+    const li = document.createElement('li');
+    li.textContent = `${s.id} · ${s.title.replace(/^\w+\s*·\s*/, '')}`;
+    li.onclick = () => {
+      renderSlide(i);
+      chan.postMessage({ type: 'goto', i });
+    };
+    ol.appendChild(li);
+  });
+}
+
+function renderSlide(i) {
+  if (!SLIDES[i]) return;
+  curIdx = i;
+  const s = SLIDES[i];
+
+  document.getElementById('actBadge').textContent = `STAZIONE ${s.station}/25 · ${s.act}`;
+  document.getElementById('slideTitle').textContent = s.title;
+  document.getElementById('keyMsg').textContent = `🎯 ${s.key_msg}`;
+  document.getElementById('speechBox').textContent = s.script;
+  document.getElementById('numVal').textContent = s.numbers || '—';
+  document.getElementById('bridgeVal').textContent = s.bridge ? `«${s.bridge}»` : '—';
+  document.getElementById('trapVal').textContent = s.trap || '—';
+  document.getElementById('qaVal').textContent = s.qa || '—';
+
+  const next = SLIDES[i + 1];
+  document.getElementById('nextTitle').textContent = next ? `${next.station}. ${next.title}` : '🏁 Fine Presentazione (Q&A)';
+
+  const items = document.querySelectorAll('#slideList li');
+  items.forEach((el, k) => el.classList.toggle('active', k === i));
+}
+
+document.getElementById('btnNext').onclick = () => {
+  if (curIdx < SLIDES.length - 1) {
+    renderSlide(curIdx + 1);
+    chan.postMessage({ type: 'goto', i: curIdx });
+  }
+};
+document.getElementById('btnPrev').onclick = () => {
+  if (curIdx > 0) {
+    renderSlide(curIdx - 1);
+    chan.postMessage({ type: 'goto', i: curIdx });
+  }
+};
+document.getElementById('btnReset').onclick = () => {
+  startTime = Date.now();
+};
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    document.getElementById('btnNext').click();
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    document.getElementById('btnPrev').click();
+  }
+});
+
+// Timer update
+setInterval(() => {
+  if (!timerRunning) return;
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const s = String(elapsed % 60).padStart(2, '0');
+  document.getElementById('clockTime').textContent = `${m}:${s}`;
+
+  const currentSlide = SLIDES[curIdx];
+  const targetSec = currentSlide ? currentSlide.target_sec : 900;
+  const delta = elapsed - targetSec;
+
+  const statusEl = document.getElementById('clockStatus');
+  if (elapsed > TOTAL_TALK_SEC) {
+    const qaEl = elapsed - TOTAL_TALK_SEC;
+    const qam = String(Math.floor(qaEl / 60)).padStart(2, '0');
+    const qas = String(qaEl % 60).padStart(2, '0');
+    statusEl.className = 'clock-status status-late';
+    statusEl.textContent = `⚠️ Q&A Moderatore: +${qam}:${qas} / 05:00`;
+  } else if (delta > 45) {
+    statusEl.className = 'clock-status status-late';
+    statusEl.textContent = `🔴 In ritardo (+${delta}s rispetto al piano)`;
+  } else if (delta > 15) {
+    statusEl.className = 'clock-status status-warn';
+    statusEl.textContent = `🟡 Leggero ritardo (+${delta}s)`;
+  } else if (delta < -25) {
+    statusEl.className = 'clock-status status-ok';
+    statusEl.textContent = `🔵 In anticipo (${Math.abs(delta)}s di margine)`;
+  } else {
+    statusEl.className = 'clock-status status-ok';
+    statusEl.textContent = `🟢 In ritmo perfetto`;
+  }
+}, 500);
+
+init();
+</script>
+</body>
+</html>
