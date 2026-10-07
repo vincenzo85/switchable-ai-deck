@@ -585,6 +585,8 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
       ...(r.family ? {family: r.family} : {}), ...(r.font_px ? {font_px: r.font_px} : {}),
       ...(r.color ? {color: r.color} : {}), ...(r.letter_spacing ? {letter_spacing: r.letter_spacing} : {}),
       ...(r.x != null ? {x: r.x} : {}),
+      ...(r.colors ? {colors: r.colors} : {}),
+      ...(r.fx ? {fx: r.fx} : {}),
       ...(r.align === 'center' ? {center: (b.lines[i] || b.lines[0]).x + (b.lines[i] || b.lines[0]).w / 2} : {}),
       baseline: base0 + i * gap}));                          // w = 0: niente adattamento alla larghezza originale
   }
@@ -600,8 +602,13 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
       d.dataset.w = l.w;
       const pieces = l.text.split(/(?<=[.!?])\s+/);
       pieces.forEach((pc, k) => {
-        if (!cur) { cur = {role: b.role, segs: [], text: ''}; units.push(cur); }
+        if (!cur) { cur = {role: b.role, segs: [], text: '', fx: l.fx}; units.push(cur); }
         const sp = document.createElement('span'); sp.className = 'seg'; sp.innerHTML = wordsHtml(pc);
+        if (l.colors) {
+          for (const [wrd, col] of Object.entries(l.colors)) {
+            sp.querySelectorAll('.w').forEach(w => { if (w.textContent.includes(wrd)) w.style.color = col; });
+          }
+        }
         d.appendChild(sp); if (k < pieces.length - 1) d.appendChild(document.createTextNode(' '));
         cur.segs.push(sp); cur.text += pc + ' ';
         if (/[.!?]$/.test(pc)) cur = null;
@@ -818,6 +825,75 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     if (!auto) return;
     units.forEach((u, i) => { if (t >= due[i] && !shown.includes(u)) reveal(u); });
   }
+
+  // modalità incorporata: la presentazione esterna (o la console presenter) comanda via postMessage
+  //   {cmd:'play'} riparte e si anima · {cmd:'pause'} si ferma · {cmd:'next'|'prev', id} risponde {handled, shown, total}
+  //   handled=false quando la slide non ha più frasi da mostrare/nascondere: allora la presentazione cambia slide
+  const EMBEDDED = !!window.EMBED_MODE || window.self !== window.top;
+  let active = !window.EMBED_MODE;
+  const reply = (id, handled) => {
+    try {
+      parent.postMessage({
+        slideReply: true,
+        id,
+        handled,
+        shown: shown.length,
+        total: units.length,
+        hasMore: units.some(x => !shown.includes(x))
+      }, '*');
+    } catch (e) {}
+  };
+  addEventListener('message', e => {
+    const m = e.data || {};
+    if (m.cmd === 'play') { active = true; play(); reply(m.id, true); }
+    else if (m.cmd === 'pause') { active = false; reply(m.id, true); }
+    else if (m.cmd === 'next') {
+      const left = units.some(x => !shown.includes(x));
+      if (left) { auto = false; nextStep(); }
+      reply(m.id, left);
+    }
+    else if (m.cmd === 'prev') {
+      const any = shown.length > 0;
+      if (any) { auto = false; hideLast(); }
+      reply(m.id, any);
+    }
+    else if (m.cmd === 'get_info') {
+      reply(m.id, true);
+    }
+  });
+
+  if (EMBEDDED) {
+    const hint = document.getElementById('hint');
+    if (hint) hint.remove();
+  }
+  addEventListener('keydown', e => {
+    if (e.key === 'r' || e.key === 'R') play();
+    else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); auto = false; nextStep(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); auto = false; hideLast(); }
+    else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  });
+  stage.addEventListener('click', () => { auto = false; nextStep(); });
+  setTimeout(() => { const h = document.getElementById('hint'); if (h) h.style.opacity = 0; }, 4000);
+
+  function frame(now) {
+    if (active) { const t = tFix ?? now - t0; draw(t); fire(t); hazeTick(t); if (tFix === null) autoText(t); }
+    requestAnimationFrame(frame);
+  }
+  if (!window.EMBED_MODE) play();
+  else { draw(0); }
+  if (window.self !== window.top) {
+    reply(0, true);
+    parent.postMessage({slideReady: true, shown: shown.length, total: units.length}, '*');
+  }
+  if (q.get('final')) {
+    timers.forEach(clearTimeout);
+    units.forEach(u => unitEls(u).forEach(el => { el.style.transition = 'none'; el.style.opacity = '1'; }));
+    cardEls.forEach(c => { c.el.classList.add('on'); c.el.style.transition = 'none'; c.el.style.opacity = '1'; c.el.querySelectorAll('h3,p').forEach(x => { x.style.transition = 'none'; x.style.opacity = '1'; }); });
+    lblEls.forEach(L => { L.el.style.transition = 'none'; L.el.style.opacity = '1'; });
+    document.querySelectorAll('.card.list .chk, .card.chart svg, .card.chart .note, .card .n, .card .st, .card .sub, .card h3, .card p').forEach(x => { x.style.transition = 'none'; x.style.opacity = '1'; });
+    if (reqbar) { const last = RQ.items[RQ.items.length - 1]; showReq(last); }
+    units.forEach(u => u.fx && itemFx.push({u, fx: u.fx, t0: (tFix ?? 0) - 1200}));   // anteprima: effetti delle voci attivi
+  }
   if (q.get('reveal') === 'all') {
     auto = false;
     for (const u of units) {
@@ -829,45 +905,6 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
       if (u.card) u.card.classList.add('on');
     }
     lblEls.forEach(L => { L.el.style.opacity = '1'; L.on = true; });
-  }
-  // modalità incorporata (window.EMBED_MODE, usata da build_deck.py): la presentazione esterna comanda via postMessage
-  //   {cmd:'play'} riparte e si anima · {cmd:'pause'} si ferma · {cmd:'next'|'prev', id} risponde {handled}
-  //   handled=false quando la slide non ha più frasi da mostrare/nascondere: allora la presentazione cambia slide
-  const EMBEDDED = !!window.EMBED_MODE;
-  let active = !EMBEDDED;
-  if (EMBEDDED) {
-    document.getElementById('hint').remove();
-    addEventListener('message', e => {
-      const m = e.data || {}, reply = handled => parent.postMessage({slideReply: true, id: m.id, handled}, '*');
-      if (m.cmd === 'play') { active = true; play(); }
-      else if (m.cmd === 'pause') active = false;
-      else if (m.cmd === 'next') { const left = units.some(x => !shown.includes(x)); if (left) { auto = false; nextStep(); } reply(left); }
-      else if (m.cmd === 'prev') { const any = shown.length > 0; if (any) { auto = false; hideLast(); } reply(any); }
-    });
-  } else {
-    addEventListener('keydown', e => {
-      if (e.key === 'r' || e.key === 'R') play();
-      else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); auto = false; nextStep(); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); auto = false; hideLast(); }
-      else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
-    });
-    stage.addEventListener('click', () => { auto = false; nextStep(); });
-    setTimeout(() => document.getElementById('hint').style.opacity = 0, 4000);
-  }
-  function frame(now) {
-    if (active) { const t = tFix ?? now - t0; draw(t); fire(t); hazeTick(t); if (tFix === null) autoText(t); }
-    requestAnimationFrame(frame);
-  }
-  if (!EMBEDDED) play();
-  else { draw(0); parent.postMessage({slideReady: true}, '*'); }          // prima immagine pronta; avvisa la presentazione
-  if (q.get('final')) {
-    timers.forEach(clearTimeout);
-    units.forEach(u => unitEls(u).forEach(el => { el.style.transition = 'none'; el.style.opacity = '1'; }));
-    cardEls.forEach(c => { c.el.classList.add('on'); c.el.style.transition = 'none'; c.el.style.opacity = '1'; c.el.querySelectorAll('h3,p').forEach(x => { x.style.transition = 'none'; x.style.opacity = '1'; }); });
-    lblEls.forEach(L => { L.el.style.transition = 'none'; L.el.style.opacity = '1'; });
-    document.querySelectorAll('.card.list .chk, .card.chart svg, .card.chart .note, .card .n, .card .st, .card .sub, .card h3, .card p').forEach(x => { x.style.transition = 'none'; x.style.opacity = '1'; });
-    if (reqbar) { const last = RQ.items[RQ.items.length - 1]; showReq(last); }
-    units.forEach(u => u.fx && itemFx.push({u, fx: u.fx, t0: (tFix ?? 0) - 1200}));   // anteprima: effetti delle voci attivi
   }
   requestAnimationFrame(frame);
 })();

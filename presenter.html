@@ -3,364 +3,1187 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vista Relatore · Switchable AI Deck</title>
+<title>Console Relatore · Switchable AI Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #060911;
     --panel: #0d131f;
+    --panel-sub: #131c2e;
+    --card-bg: #080d18;
     --rule: #1e293b;
+    --rule-light: #334155;
     --ink: #f1f5f9;
     --muted: #94a3b8;
+    --dim: #64748b;
     --hud: #5ED8FF;
     --teal: #2dd4bf;
+    --emerald: #10b981;
     --amber: #f59e0b;
     --alert: #ef4444;
+    --purple: #c084fc;
     color-scheme: dark;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg);
     color: var(--ink);
-    display: grid;
-    grid-template-columns: 1fr 380px;
     height: 100vh;
     overflow: hidden;
-  }
-  main {
-    padding: 32px 40px;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
   }
-  aside {
-    background: var(--panel);
-    border-left: 1px solid var(--rule);
-    padding: 24px;
+
+  /* TOP HEADER */
+  header {
+    background: #090e18;
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 20px;
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-    overflow-y: auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+    height: 52px;
   }
-  .act-badge {
-    font-size: 13px;
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-station {
+    background: rgba(94, 216, 255, 0.12);
+    border: 1px solid rgba(94, 216, 255, 0.35);
+    color: var(--hud);
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 4px;
     text-transform: uppercase;
-    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
   }
-  h1 {
-    font-size: 32px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.2;
-  }
-  .key-card {
-    background: rgba(45, 212, 191, 0.1);
-    border: 1px solid rgba(45, 212, 191, 0.3);
-    padding: 14px 18px;
-    border-radius: 8px;
-    color: var(--teal);
+  .slide-header-title {
     font-size: 15px;
     font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 50vw;
   }
-  .section-label {
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .deck-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: #0d1525;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+  }
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dim);
+  }
+  .deck-connected .status-indicator {
+    background: var(--emerald);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  }
+  .deck-connected {
+    color: var(--teal);
+    border-color: rgba(45, 212, 191, 0.4);
+  }
+  .clock-wall {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* MAIN 3-PANEL LAYOUT */
+  .layout-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 460px 1fr 340px;
+    overflow: hidden;
+    height: calc(100vh - 52px);
+  }
+
+  /* LEFT COLUMN: ANTEPRIMA & CONTROLLI */
+  .col-preview {
+    background: var(--panel);
+    border-right: 1px solid var(--rule);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+  }
+  .col-preview::-webkit-scrollbar,
+  .col-speech::-webkit-scrollbar,
+  .col-index::-webkit-scrollbar {
+    width: 6px;
+  }
+  .col-preview::-webkit-scrollbar-thumb,
+  .col-speech::-webkit-scrollbar-thumb,
+  .col-index::-webkit-scrollbar-thumb {
+    background: var(--rule);
+    border-radius: 3px;
+  }
+
+  .preview-card {
+    background: var(--card-bg);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .preview-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--muted);
-    margin-bottom: 6px;
   }
-  .speech-box {
+  .preview-aspect-box {
+    width: 100%;
+    aspect-ratio: 1376 / 768;
+    background: #000;
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+  .preview-aspect-box iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1376px;
+    height: 768px;
+    border: 0;
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+
+  /* STEP HUD BADGE */
+  .step-badge {
+    background: #030712;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .step-badge .badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--hud);
+  }
+  .step-badge.status-active {
+    color: var(--hud);
+    border-color: rgba(94, 216, 255, 0.4);
+    background: rgba(94, 216, 255, 0.06);
+  }
+  .step-badge.status-done {
+    color: var(--emerald);
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.06);
+  }
+  .step-badge.status-done .badge-dot {
+    background: var(--emerald);
+  }
+
+  /* PRIMARY BUTTONS BAR */
+  .primary-controls {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-step-prev {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid var(--rule-light);
+    color: var(--ink);
+    padding: 13px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-step-prev:hover {
+    background: #334155;
+    border-color: var(--dim);
+  }
+  .btn-step-prev:active {
+    transform: translateY(1px);
+  }
+
+  .btn-step-next {
+    flex: 2;
+    background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+    border: 1px solid #38bdf8;
+    color: #ffffff;
+    padding: 13px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 0 16px rgba(14, 165, 233, 0.35);
+  }
+  .btn-step-next:hover {
+    filter: brightness(1.15);
+    box-shadow: 0 0 24px rgba(14, 165, 233, 0.55);
+    transform: translateY(-1px);
+  }
+  .btn-step-next:active {
+    transform: translateY(1px);
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+  }
+
+  /* SECONDARY TOOLBAR GRID */
+  .toolbar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .toolbar-btn {
+    background: #0f172a;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    padding: 8px 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .toolbar-btn kbd {
+    font-size: 9px;
+    color: var(--dim);
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #1e293b;
+    border-radius: 3px;
+    padding: 1px 4px;
+    background: #020617;
+  }
+  .toolbar-btn:hover {
+    background: #1e293b;
+    color: #fff;
+    border-color: var(--rule-light);
+  }
+  .toolbar-btn:hover kbd {
+    color: var(--muted);
+    border-color: #334155;
+  }
+  .toolbar-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* NEXT SLIDE TEASER CARD */
+  .next-teaser-card {
+    background: #030712;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .next-teaser-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+  }
+  .next-teaser-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .next-teaser-bridge {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.35;
+  }
+
+  /* CENTER COLUMN: PROMPTER / COPIONE */
+  .col-speech {
+    padding: 24px 32px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .act-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .act-badge-large {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .station-num-large {
+    font-size: 12px;
+    color: var(--dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .main-slide-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+  }
+
+  .key-message-box {
+    background: rgba(45, 212, 191, 0.08);
+    border: 1px solid rgba(45, 212, 191, 0.28);
+    border-radius: 8px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .key-message-icon {
+    font-size: 18px;
+    line-height: 1;
+    padding-top: 2px;
+  }
+  .key-message-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--teal);
+    line-height: 1.4;
+  }
+
+  .speech-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .section-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .speech-card {
     background: #020617;
     border: 1px solid var(--rule);
     border-radius: 10px;
-    padding: 20px;
-    font-size: 18px;
-    line-height: 1.6;
+    padding: 22px;
+    font-size: 19px;
+    line-height: 1.65;
     color: #f8fafc;
     white-space: pre-wrap;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
   }
-  .meta-grid {
+
+  .meta-grid-2x2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
   }
-  .card-box {
+  .meta-item-box {
     background: #020617;
     border: 1px solid var(--rule);
     border-radius: 8px;
-    padding: 14px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
     gap: 6px;
     font-size: 14px;
+    line-height: 1.45;
   }
-  .num-val { color: var(--teal); font-weight: 600; }
-  .trap-val { color: var(--alert); font-weight: 500; }
-  .bridge-val { color: var(--hud); font-style: italic; }
-  .qa-val { color: #c084fc; font-size: 13px; }
+  .meta-item-box.trap-box {
+    border-color: rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.03);
+  }
+  .meta-item-box.qa-box {
+    border-color: rgba(192, 132, 252, 0.25);
+    background: rgba(192, 132, 252, 0.03);
+  }
+  .meta-val-numbers { color: var(--teal); font-weight: 600; }
+  .meta-val-bridge { color: var(--hud); font-style: italic; }
+  .meta-val-trap { color: #f87171; font-weight: 500; }
+  .meta-val-qa { color: var(--purple); font-size: 13px; }
 
-  /* ASIDE WIDGETS */
-  .clock-widget {
-    background: #020617;
+  /* RIGHT COLUMN: TIMER & INDICE 25 STAZIONI */
+  .col-index {
+    background: var(--panel);
+    border-left: 1px solid var(--rule);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+  }
+
+  .timer-card {
+    background: var(--card-bg);
     border: 1px solid var(--rule);
     border-radius: 10px;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
     text-align: center;
   }
-  .clock-time {
-    font-size: 48px;
+  .timer-label {
+    font-size: 11px;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .clock-digital {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 46px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.1;
     font-variant-numeric: tabular-nums;
-    font-family: ui-monospace, monospace;
-    color: #fff;
   }
-  .clock-status {
-    font-size: 13px;
+  .clock-status-badge {
+    font-size: 12px;
     font-weight: 600;
-    margin-top: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-top: 2px;
   }
-  .status-ok { color: var(--teal); }
-  .status-warn { color: var(--amber); }
-  .status-late { color: var(--alert); }
-
-  .btn-row {
-    display: flex;
-    gap: 8px;
+  .status-pace-ok {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--teal);
+    border: 1px solid rgba(16, 185, 129, 0.35);
   }
-  button {
-    flex: 1;
-    background: #1e293b;
-    border: 1px solid var(--rule);
-    color: var(--ink);
-    padding: 10px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+  .status-pace-warn {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--amber);
+    border: 1px solid rgba(245, 158, 11, 0.35);
   }
-  button:hover { background: #334155; }
-  button.primary { background: var(--hud); color: #020617; border-color: var(--hud); }
-  button.primary:hover { filter: brightness(1.15); }
-
-  .next-box {
+  .status-pace-late {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--alert);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+  }
+  .progress-bar-wrap {
+    width: 100%;
+    height: 6px;
     background: #020617;
-    border: 1px solid var(--rule);
-    border-radius: 8px;
-    padding: 12px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
   }
-  .next-title { font-size: 14px; color: var(--ink); font-weight: 600; margin-top: 4px; }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--hud));
+    width: 0%;
+    transition: width 0.3s;
+  }
 
-  ol.slide-list {
+  .index-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .index-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .index-counter {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--dim);
+  }
+
+  ol.station-list {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-height: 38vh;
     overflow-y: auto;
-    border: 1px solid var(--rule);
-    border-radius: 8px;
-    background: #020617;
-    padding: 6px;
+    flex: 1;
+    padding-right: 4px;
   }
-  ol.slide-list li {
+  ol.station-list li {
     padding: 8px 10px;
     border-radius: 6px;
     font-size: 13px;
     cursor: pointer;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     color: var(--muted);
+    border: 1px solid transparent;
+    transition: all 0.15s;
   }
-  ol.slide-list li:hover { background: #1e293b; color: #fff; }
-  ol.slide-list li.active {
-    background: rgba(94, 216, 255, 0.15);
+  ol.station-list li:hover {
+    background: #1e293b;
+    color: #fff;
+  }
+  ol.station-list li.active {
+    background: rgba(94, 216, 255, 0.14);
+    border-color: rgba(94, 216, 255, 0.4);
     color: var(--hud);
-    font-weight: 700;
+    font-weight: 600;
+  }
+  .station-num-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    min-width: 28px;
+  }
+  ol.station-list li.active .station-num-pill {
+    color: var(--hud);
+  }
+  .station-item-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .station-item-target {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
   }
 </style>
 </head>
 <body>
 
-<main>
-  <div class="act-badge" id="actBadge">ATTO I</div>
-  <h1 id="slideTitle">Caricamento...</h1>
-  <div class="key-card" id="keyMsg">—</div>
-
-  <div>
-    <div class="section-label">🗣️ Cosa Dire (Copione Parlato)</div>
-    <div class="speech-box" id="speechBox">—</div>
+<header>
+  <div class="header-left">
+    <div class="badge-station" id="headStationBadge">STAZIONE 1 / 25</div>
+    <div class="slide-header-title" id="headTitle">Di chi è il tubo?</div>
   </div>
-
-  <div class="meta-grid">
-    <div class="card-box">
-      <div class="section-label">📊 Numeri Verificati</div>
-      <div class="num-val" id="numVal">—</div>
+  <div class="header-right">
+    <div class="deck-status" id="deckStatusBadge">
+      <span class="status-indicator"></span>
+      <span id="deckStatusText">Stand-by Deck</span>
     </div>
-    <div class="card-box">
-      <div class="section-label">🌉 Ponte / Transizione</div>
-      <div class="bridge-val" id="bridgeVal">—</div>
+    <div class="clock-wall" id="clockWall">--:--:--</div>
+  </div>
+</header>
+
+<div class="layout-grid">
+
+  <!-- LEFT: ANTEPRIMA & CONTROLLI -->
+  <aside class="col-preview">
+    <div class="preview-card">
+      <div class="preview-top-bar">
+        <span>👁️ Anteprima Slide Live</span>
+        <span id="previewSlideId" style="font-family:'JetBrains Mono',monospace;color:var(--hud)">slide_0</span>
+      </div>
+      <div class="preview-aspect-box" id="previewAspectBox">
+        <iframe id="previewFrame" src="about:blank" scrolling="no"></iframe>
+      </div>
+      <div class="step-badge" id="stepBadge">
+        <span class="badge-dot"></span>
+        <span id="stepBadgeText">Inizializzazione passo-passo...</span>
+      </div>
     </div>
-    <div class="card-box">
-      <div class="section-label">⚠️ Trappola / Cosa NON dire</div>
-      <div class="trap-val" id="trapVal">—</div>
+
+    <!-- PRIMARY ACTION BUTTONS -->
+    <div class="primary-controls">
+      <button class="btn-step-prev" id="btnStepPrev" title="Nascondi ultimo blocco / passo precedente [Freccia Sinistra]">
+        ◀ Testo Prec. <kbd style="font-size:10px;opacity:0.6;font-family:monospace">[←]</kbd>
+      </button>
+      <button class="btn-step-next" id="btnStepNext" title="Mostra frase o blocco successivo [Spazio o Freccia Destra]">
+        ▶ Testo Succ. <kbd style="font-size:10px;opacity:0.8;font-family:monospace">[Spazio / →]</kbd>
+      </button>
     </div>
-    <div class="card-box">
-      <div class="section-label">💬 Domanda Spinosa & Risposta</div>
-      <div class="qa-val" id="qaVal">—</div>
+
+    <!-- SPECIAL FUNCTION TOOLBAR -->
+    <div class="toolbar-grid">
+      <button class="toolbar-btn" id="btnSkipPrev" title="Salta direttamente alla slide precedente">
+        ⏮ Slide Prec.
+        <kbd>Shift+← / P</kbd>
+      </button>
+      <button class="toolbar-btn" id="btnSkipNext" title="Salta direttamente alla slide successiva">
+        ⏭ Salta Slide
+        <kbd>Shift+→ / N</kbd>
+      </button>
+      <button class="toolbar-btn" id="btnResetSlide" title="Riavvia la slide corrente dal primo istante">
+        🔄 Riavvia
+        <kbd>R</kbd>
+      </button>
+      <button class="toolbar-btn" id="btnPauseTimer" title="Metti in pausa o riprendi il timer del talk">
+        ⏸ Pausa
+        <kbd>T</kbd>
+      </button>
+      <button class="toolbar-btn" id="btnResetTimer" title="Azzera il cronometro a 00:00">
+        ⏱ Azzera
+        <kbd>0</kbd>
+      </button>
+      <button class="toolbar-btn" id="btnFullscreen" title="Attiva / disattiva schermo intero">
+        ⛶ Schermo
+        <kbd>F</kbd>
+      </button>
     </div>
-  </div>
-</main>
 
-<aside>
-  <div class="clock-widget">
-    <div class="section-label">⏱️ Timer Talk (15 min)</div>
-    <div class="clock-time" id="clockTime">00:00</div>
-    <div class="clock-status status-ok" id="clockStatus">🟢 In ritmo perfetto</div>
-  </div>
+    <!-- NEXT SLIDE PREVIEW TEASER -->
+    <div class="next-teaser-card">
+      <div class="next-teaser-label">⏭ Prossima Stazione</div>
+      <div class="next-teaser-title" id="nextTeaserTitle">1 · Costruire l’infrastruttura</div>
+      <div class="next-teaser-bridge" id="nextTeaserBridge">«Ponte verso la prossima slide...»</div>
+    </div>
+  </aside>
 
-  <div class="btn-row">
-    <button id="btnPrev">← Indietro</button>
-    <button class="primary" id="btnNext">Avanti →</button>
-    <button id="btnReset">Reset</button>
-  </div>
+  <!-- CENTER: PROMPTER / COPIONE -->
+  <main class="col-speech">
+    <div class="act-title-row">
+      <span class="act-badge-large" id="mainActBadge">PROLOGO</span>
+      <span class="station-num-large" id="mainStationBadge">Stazione 1 / 25 · Target: ~00:30</span>
+    </div>
+    <h1 class="main-slide-heading" id="mainSlideTitle">0 · Di chi è il tubo?</h1>
 
-  <div class="next-box">
-    <div class="section-label">Prossima Slide</div>
-    <div class="next-title" id="nextTitle">—</div>
-  </div>
+    <div class="key-message-box">
+      <div class="key-message-icon">🎯</div>
+      <div class="key-message-text" id="mainKeyMsg">Non serve sempre un modello migliore. Serve una torre di controllo.</div>
+    </div>
 
-  <div>
-    <div class="section-label" style="margin-bottom:8px">Indice Presentazione (25 Slide)</div>
-    <ol class="slide-list" id="slideList"></ol>
-  </div>
-</aside>
+    <div class="speech-section">
+      <div class="section-tag">🗣️ Cosa Dire (Copione Parlato)</div>
+      <div class="speech-card" id="mainSpeechCard">—</div>
+    </div>
+
+    <div class="meta-grid-2x2">
+      <div class="meta-item-box">
+        <div class="section-tag">📊 Numeri Verificati</div>
+        <div class="meta-val-numbers" id="mainNumbers">—</div>
+      </div>
+      <div class="meta-item-box">
+        <div class="section-tag">🌉 Ponte / Transizione</div>
+        <div class="meta-val-bridge" id="mainBridge">—</div>
+      </div>
+      <div class="meta-item-box trap-box">
+        <div class="section-tag" style="color:#f87171">⚠️ Trappola / Cosa NON dire</div>
+        <div class="meta-val-trap" id="mainTrap">—</div>
+      </div>
+      <div class="meta-item-box qa-box">
+        <div class="section-tag" style="color:var(--purple)">💬 Domanda Spinosa & Risposta</div>
+        <div class="meta-val-qa" id="mainQA">—</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT: TIMER & INDICE -->
+  <aside class="col-index">
+    <div class="timer-card">
+      <div class="timer-label">⏱️ Timer Talk (15 min)</div>
+      <div class="clock-digital" id="clockDigital">00:00</div>
+      <div class="clock-status-badge status-pace-ok" id="clockStatusBadge">🟢 In ritmo perfetto</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBarFill"></div>
+      </div>
+    </div>
+
+    <div class="index-header">
+      <span class="index-title">Indice 25 Stazioni</span>
+      <span class="index-counter" id="indexCounter">1 / 25</span>
+    </div>
+
+    <ol class="station-list" id="stationList"></ol>
+  </aside>
+
+</div>
 
 <script>
-let SLIDES = [];
+// Dati incorporati dal compilatore
+const SLIDES = [{"id": "0", "station": 1, "title": "0 · Di chi è il tubo?", "act": "PROLOGO · Il dilemma della sovranità", "target_sec": 30, "key_msg": "Non serve sempre un modello migliore. Serve una torre di controllo.", "script": "Tre secondi di silenzio. Poi: stamattina ero seduto vicino a un finestrino in aereo. E mi sono chiesto: chi decide la rotta? Non il pilota da solo. Una torre.\nOra immaginate di prendere quell'aereo per andare al supermercato sotto casa a comprare il latte.\nÈ esattamente quello che facciamo quando usiamo il modello più grande e costoso per classificare un ticket banale.", "numbers": "Token sprecati su task semplici: fino al 98% (FrugalGPT)", "bridge": "Il problema non è il modello: è che nessuno decide il mezzo.", "trap": "NON dire che i modelli cloud non servono: servono per i task duri, ma non per tutto.", "qa": "«Perché non un solo modello standard?» Perché costa da 10x a 50x di più ed espone dati sensibili.", "code": "switchable_ai/core/domain/policy.py"}, {"id": "1", "station": 2, "title": "1 · Costruire l’infrastruttura", "act": "PROLOGO · Il decollo", "target_sec": 60, "key_msg": "Un'infrastruttura di controllo tra l'applicazione e i modelli.", "script": "Alla mia applicazione ho fatto credere di parlare sempre con la stessa API standard OpenAI.\nMa in mezzo ho infilato una torre di controllo: LiteLLM, FastAPI, Ollama per il locale e RAG interno.\nCambia una sola riga di configurazione (base_url), e l'app diventa libera.", "numbers": "Latenza aggiunta dall'infrastruttura gateway: < 2 ms", "bridge": "Ma prima di vedere la torre, guardiamo cosa succede oggi in affitto.", "trap": "NON perdersi nei dettagli del codice: far passare il concetto dell'interfaccia unica.", "qa": "«Cosa succede se il gateway cade?» È un container stateless locale, riparte in sub-secondo.", "code": "infra/docker-compose.yml · infra/litellm.yaml"}, {"id": "2", "station": 3, "title": "2 · Intelligenza in affitto", "act": "ATTO I · La dipendenza", "target_sec": 95, "key_msg": "In demo vola tutto, in produzione arrivano i vincoli reali.", "script": "In demo vola tutto. In produzione gli aerei restano a terra: bollette a sorpresa a fine mese, rate limit sui provider, blocchi invalicabili di data residency e privacy (DPO che blocca tutto).\nSe non possiedi la telemetria, sei ostaggio del listino del fornitore.", "numbers": "FrugalGPT (2023): risparmio fino al 98% a parità di accuratezza", "bridge": "E c'è un'illusione economica pericolosa da sfatare subito.", "trap": "NON criticare OpenAI/Anthropic: parlare di governance e controllo costi.", "qa": "«Ma i prezzi cloud scendono sempre!» Scendono i modelli vecchi, quelli nuovi di frontiera aumentano.", "code": "docs/BIBLIOGRAFIA.md (FrugalGPT Chen et al. 2023)"}, {"id": "0b", "station": 4, "title": "0b · Economico oggi ≠ per sempre", "act": "ATTO I · Principio FinOps", "target_sec": 130, "key_msg": "Un prezzo da commodity non è un contratto con il futuro.", "script": "Guardate questo contatore: l'ago oggi è nella zona bassa. È economico, comodo, potente. Ed è per questo che lo stiamo adottando.\nMa la scala prosegue verso l'alto, in ombra. Il prezzo del tubo non lo decidiamo noi.\nCostruire ora l'indipendenza significa non trovarsi bloccati domani quando il listino cambia.", "numbers": "Costo cloud di riferimento nel benchmark: €4.60 / Mtok", "bridge": "Come ci riprendiamo il controllo? Con il Control Plane.", "trap": "NON promettere che non useremo mai il cloud: useremo il cloud solo quando serve.", "qa": "«È una questione di lock-in?» Sì, lock-in di architettura e costi marginali.", "code": "talk/numbers.json (tco.cloud_price_eur_mtok)"}, {"id": "3", "station": 5, "title": "3 · Control Plane", "act": "ATTO I · La torre", "target_sec": 170, "key_msg": "Cambia una sola riga: la torre decide la rotta.", "script": "Dietro quella porta c'è la torre di controllo. Riceve ogni chiamata e apre tre piste:\n- Pista corta (verde): Locale (commuter rapido ed economico)\n- Pista lunga (ambra): Cloud Frontier (il jet per l'ignoto e il complesso)\n- Stiva (blu): RAG protetto per la conoscenza aziendale.", "numbers": "3 rotte disponibili: local, cloud, local_rag", "bridge": "Ma chi decide quale pista usare? Un LLM? No: prima le regole.", "trap": "NON dire che la decisione la prende un secondo LLM grande: aggiungerebbe latenza e costo.", "qa": "«Perché LiteLLM?» Perché funge da proxy standard OpenAI verso qualsiasi backend.", "code": "switchable_ai/core/domain/route.py"}, {"id": "4", "station": 6, "title": "4 · Regole ferree", "act": "ATTO I · Regole deterministiche", "target_sec": 210, "key_msg": "La torre non è un LLM: 0 ms di latenza deterministica.", "script": "Perché non facciamo decidere un LLM? Perché costerebbe token e latenza su OGNI singola chiamata!\nLe nostre regole deterministiche aggiungono ZERO millisecondi.\nRegola 1: Dati personali o sensibili? Pista cloud sbarrata, atterraggio forzato in Locale.\nRegola 2: Budget del giorno esaurito? Cloud chiuso.\nE queste regole le sabotiamo ogni notte con mutation testing per assicurarci che non cedano mai.", "numbers": "Latenza regole: 0 ms · Sabotaggi uccisi: 15 su 15 (100%)", "bridge": "Vediamo le due metà dell'intelligenza: quella in affitto e quella posseduta.", "trap": "NON dire che le regole bastano per tutto: vedremo presto che sulle parafrasi mostrano limiti.", "qa": "«E se il prompt tenta un injection?» Le regex e i filtri di policy scattano prima del modello.", "code": "switchable_ai/core/domain/policy.py (rules-v1)"}, {"id": "5", "station": 7, "title": "5 · Rented Intelligence", "act": "ATTO I · Il cloud di frontiera", "target_sec": 245, "key_msg": "Il Cloud è un jet: lo accendi quando devi volare lontano.", "script": "Il Cloud Frontier è fantastico: ragionamento complesso, visione strategica, pianificazione articolata.\nMa è come un jet: costa accenderlo, consuma a listino, e se la rete cade resti a terra.\nLo usiamo solo per i task ad alta complessità dove la risposta locale non basterebbe.", "numbers": "Costo task B complesso in cloud: ~€0.0256", "bridge": "Tutto il resto deve poter atterrare a casa.", "trap": "NON dire 'usiamo sempre modelli open source': l'approccio è ibrido e pragmatico.", "qa": "«Quali modelli cloud?» GPT-4o, Claude 3.5 Sonnet o equivalenti ad alto ragionamento.", "code": "switchable_ai/infrastructure/cloud_client.py"}, {"id": "6", "station": 8, "title": "6 · Owned Intelligence", "act": "ATTO II · Il locale posseduto", "target_sec": 280, "key_msg": "Modello locale on-premise: zero costo per token marginale, privacy assoluta.", "script": "L'intelligenza posseduta: modelli compatti (Qwen 2.5 7B, Gemma 2 9B) ospitati su Ollama/vLLM.\nCosto marginale del token: zero. Nessun dato lascia il perimetro aziendale.\nSulle classificazioni, estrazioni e summary brevi, la risposta arriva in millisecondi.", "numbers": "Throughput Ollama locale: 175 tok/s (singolo stream) · vLLM batch: 6.7x", "bridge": "E per i documenti aziendali, non serve spedirli fuori: c'è la stiva.", "trap": "NON dire che un 7B batte un 70B ovunque: basta per il 70% dei compiti operativi.", "qa": "«Cosa serve per farlo girare?» Una singola GPU consumer o workstation da 16-24GB VRAM.", "code": "switchable_ai/benchmarks/benchmark_engine.py"}, {"id": "7", "station": 9, "title": "7 · RAG locale protetto", "act": "ATTO II · La stiva della conoscenza", "target_sec": 320, "key_msg": "I documenti aziendali non escono: retrieval locale con hnswlib e nomic-embed.", "script": "Quando un utente chiede 'Come funziona il nostro runbook?', la richiesta scende nella stiva.\nTutto indicizzato in locale con nomic-embed-text e indice vettoriale hnswlib.\nI nostri documenti riservati non passano mai su internet.", "numbers": "Hit@3 recupero fonti: 100% · Risposte contenenti il dato atteso: 83%", "bridge": "Come coordiniamo tutto questo? Con la Matrice di Routing.", "trap": "NON dire che il RAG ha il 100% di risposte perfette: il recupero è al 100%, la sintesi all'83%.", "qa": "«Perché hnswlib invece di un database vettoriale cloud?» Zero overhead, file su disco, locale.", "code": "switchable_ai/infrastructure/rag_hnsw.py"}, {"id": "8", "station": 10, "title": "8 · Matrice di routing", "act": "ATTO II · I 4 quadranti", "target_sec": 360, "key_msg": "Instradare in base a Sensibilità dei dati e Complessità del task.", "script": "Quattro quadranti precisi:\n1. Bassa sensibilità + Bassa complessità: LOCALE (classificazione veloce, quasi gratis)\n2. Alta sensibilità: SEMPRE LOCALE o RAG INTERNO (regola inviolabile di data residency)\n3. Bassa sensibilità + Alta complessità: CLOUD FRONTIER (l'unico caso in cui il jet vola)\n4. Domande sulla base documentale: RAG LOCALE.", "numbers": "Latenza Task A locale: 65 ms · Task B complesso: 5.9 s", "bridge": "E adesso vi mostro un numero gigante... e vi dico di non fidarvi.", "trap": "NON confondere le decisioni della regola con quelle del secondo controllore.", "qa": "«Chi definisce la complessità?» All'inizio euristiche e token length, poi l'advisor compatto.", "code": "switchable_ai/core/domain/policy.py"}, {"id": "9", "station": 11, "title": "9 · Paradosso FinOps", "act": "ATTO II · Il grande gancio (Open Loop)", "target_sec": 400, "key_msg": "Risparmio del 96%? È vero, ma è un'illusione se non contate l'hardware.", "script": "Ecco il numero: 96% di risparmio sui costi operativi dell'esperimento (€0.0011 contro €0.0256).\nSembra un trionfo, vero? Pausa.\nTenetelo a mente. Non fidatevene. Tra poco vi mostrerò perché calcolare solo l'energia è un errore grossolano che rischia di ingannare il vostro CFO.", "numbers": "96% risparmio solo-energia (€0.0011 reale vs €0.0256 tutto-cloud)", "bridge": "Per capire cosa succede davvero, dobbiamo seguire ogni traccia.", "trap": "NON svelare ancora il pareggio del 12%: mantenere vivo il mistero per l'atterraggio!", "qa": "«Cosa c'è di sbagliato nel 96%?» Non include l'ammortamento della macchina, che vedremo.", "code": "talk/numbers.json (tco.saving_energy_only)"}, {"id": "A", "station": 12, "title": "A · Ogni richiesta lascia una traccia", "act": "ATTO III · Il sistema impara", "target_sec": 440, "key_msg": "Dalle richieste all'evidenza: ogni interazione diventa dato telemetrico.", "script": "Niente fumo: ogni singola richiesta lascia una traccia strutturata in Langfuse.\nRegistriamo: prompt hash, rotta scelta, modello effettivo, token in/out, latenza esatta, costo e regola applicata.\nL'esperienza operativa si trasforma in cluster di dati e in evidenza misurabile.", "numbers": "49 tracce esportate · 4 dati personali (PII) anonimizzati al volo", "bridge": "E queste tracce vanno in tre memorie distinte.", "trap": "NON mostrare dati di produzione non anonimizzati: la privacy vale anche nella telemetria.", "qa": "«Come gestite i dati sensibili nei log?» La traccia viene ripulita prima del logging.", "code": "switchable_ai/infrastructure/telemetry.py"}, {"id": "B", "station": 13, "title": "B · Le tre memorie", "act": "ATTO III · Log, Wiki e Policy", "target_sec": 480, "key_msg": "Tre livelli separati: la policy cambia senza riscrivere la storia.", "script": "Non mischiamo tutto in un calderone:\n1. Memoria degli Eventi (Log grezzo immutabile: la scatola nera)\n2. Memoria dell'Esperienza (Lezioni apprese, cluster di fallimento e successo)\n3. Memoria della Regola (La policy attiva, che si aggiorna senza alterare la cronologia).\nQuesto garantisce verificabilità e rollback immediato.", "numbers": "3 strati architetturali rigorosamente disaccoppiati", "bridge": "Ma prima di fidarsi delle regole, bisogna metterle alla prova sul serio.", "trap": "NON dire che il modello impara 'in tempo reale durante la chiamata': l'aggiornamento è asincrono.", "qa": "«Come si fa il rollback?» Cambiando la versione della policy (rules-v1 -> rules-v2).", "code": "core/domain/memory.py"}, {"id": "C", "station": 14, "title": "C · Prima le prove dure", "act": "ATTO III · L'onestà dei benchmark", "target_sec": 525, "key_msg": "Il router perfetto non esiste: l'onestà dei dati held-out.", "script": "Questo è il numero che mi ha fatto più male: sui test scritti da me, le regole facevano 100%.\nMa quando ho preso 32 richieste riscritte con parafrasi e parole diverse (held-out set), l'accuratezza è crollata al 53%!\nLe regole sbagliano verso il risparmio (non mandano in cloud per errore), ma i compiti difficili scritti in due righe non li riconoscono mai.\nMettendo un controllore compatto ben descritto siamo saliti al 78%.", "numbers": "Regole su held-out: 53% · Advisor compatto (Rizzo tuned): 78% (+90 ms)", "bridge": "E per correggere gli errori di rotta, chi ci aiuta? Il feedback dell'utente.", "trap": "NON nascondere il 53%: è il momento in cui il pubblico capisce che non stai vendendo fuffa!", "qa": "«Cos'è Rizzo Flow?» Un router compatto specializzato addestrato sul routing di compiti.", "code": "switchable_ai/benchmarks/results/router_benchmark.json"}, {"id": "D", "station": 15, "title": "D · Il tuo feedback è un sensore", "act": "ATTO III · Il feedback utente", "target_sec": 565, "key_msg": "Copia, riprova, correzione: i segnali impliciti che guidano il sistema.", "script": "L'utente non compila form noiosi con 5 stelline. Il suo comportamento è il sensore:\n- Se fa 'copia': pollice su implicito (successo)\n- Se clicca 'rigenera' o cambia subito prompt: pollice verso (la risposta locale era debole)\n- Se corregge: segnale prezioso per l'escalation sul Cloud Frontier.", "numbers": "4 pattern di telemetria comportamentale catturati", "bridge": "E ora guardiamo il sistema sotto pressione massima: lo Stress Test.", "trap": "NON parlare di metriche teoriche: parlare di reazioni utente reali.", "qa": "«Cosa innesca l'escalation?» Un retry immediato dell'utente o un low confidence score.", "code": "switchable_ai/core/domain/feedback.py"}, {"id": "10", "station": 16, "title": "10 · Stress Test", "act": "CLIMAX · 100 richieste in turbolenza", "target_sec": 615, "key_msg": "100 su 100 servite, fallback automatici e zero violazioni di privacy.", "script": "Dichiarazione trasparente: in questo test il cloud è simulato a listino.\nLanciamo 100 richieste miste sotto carico. Arriva la turbolenza: 4 chiamate cloud vanno in timeout.\nCosa succede? Nessun crash: fallback istantaneo in locale, l'utente riceve la risposta.\nPoi il budget del giorno si esaurisce: la pista cloud si sbarra, e il sistema continua a servire.\nRisultato: 100/100 servite, zero violazioni di data residency, risparmio dell'82%.", "numbers": "100/100 servite · 4 timeout salvati dal fallback · 0 violazioni privacy · 82% risparmio", "bridge": "Tutto questo visibile dal cockpit in tempo reale.", "trap": "DICHIARARE sempre chiaramente: 'il cloud nello stress test è simulato a listino'.", "qa": "«Quanto dura il timeout cloud prima del fallback?» 3 secondi impostati come parametro di SLA.", "code": "talk/replays/stress.json · benchmarks/stress_test.py"}, {"id": "11", "station": 17, "title": "11 · Osservabilità", "act": "CLIMAX · Il cockpit", "target_sec": 655, "key_msg": "Quello che non misuri non puoi governarlo: Grafana e Langfuse.", "script": "Il cockpit: dashboard Grafana che confronta in tempo reale la spesa effettiva contro il tutto-cloud.\nVediamo il contatore dei fallback, la saturazione delle GPU locali e le latenze P95.\nE una confessione onesta: Langfuse mostra il simbolo del dollaro, ma i nostri numeri sono in EURO!\nUn dettaglio che in una riunione con il CFO può creare confusione.", "numbers": "Dashboard Grafana: porta 3012 · Traces Langfuse: porta 3011", "bridge": "Dietro questa architettura c'è una solida teoria del controllo.", "trap": "NON farsi prendere dal panico se Grafana lagga: hai lo screenshot pronto nel replay.", "qa": "«Cosa monitorate di più?» I fallback e la divergenza di costo cumulato rispetto al budget.", "code": "infra/grafana/dashboards/cockpit.json"}, {"id": "E", "station": 18, "title": "E · Il ciclo", "act": "ATTO IV · Teoria del controllo", "target_sec": 695, "key_msg": "Osserva → Decidi → Esegui → Misura → Impara.", "script": "L'architettura non è uno script statico, è un anello di controllo chiuso:\nOSSERVA (telemetria) → DECIDI (regole + advisor) → ESEGUI (modello opportuno) → MISURA (valutazione e latenza) → IMPARA (aggiorna le soglie della policy).\nIl carico stesso guida l'evoluzione del sistema.", "numbers": "5 stazioni nell'anello di feedback ricorsivo", "bridge": "Come bilanciamo lo sfruttamento delle rotte note con la scoperta di nuovi modelli?", "trap": "NON complicare la spiegazione cibernetica: restare sull'immagine dell'acceleratore.", "qa": "«Chi fa l'apprendimento?» L'aggiornamento periodico dei pesi e delle definizioni delle rotte.", "code": "switchable_ai/core/domain/control_loop.py"}, {"id": "F", "station": 19, "title": "F · Esplorare o sfruttare", "act": "ATTO IV · Explore vs Exploit", "target_sec": 735, "key_msg": "Addestramento (compro conoscenza) vs Produzione (spendo conoscenza).", "script": "Il dilemma classico dell'ingegneria: esplorare o sfruttare?\nIn ADDESTRAMENTO compriamo conoscenza: facciamo girare modelli multipli, confrontiamo le risposte con un giudice e memorizziamo i casi migliori.\nIn PRODUZIONE spendiamo la conoscenza: serviamo sulla rotta ottimale nota, tenendo solo una piccola quota in ombra (shadow routing) per verificare che la rotta non degradi.", "numbers": "Shadow routing: 5-10% del traffico per controllo qualità continuo", "bridge": "E per fare questo in modo sano, anche il budget deve imparare.", "trap": "NON mandare traffico utente reale non controllato su rotte sperimentali senza shadow.", "qa": "«Cos'è lo shadow routing?» Chiamare in parallelo un secondo modello senza far aspettare l'utente.", "code": "switchable_ai/core/domain/shadow_router.py"}, {"id": "G", "station": 20, "title": "G · Anche il budget impara", "act": "ATTO IV · Ripartizione FinOps", "target_sec": 775, "key_msg": "Il budget non è solo un vincolo: è parte della policy di apprendimento.", "script": "Se abbiamo 20 € di budget mensile per i benchmark, come li spendiamo?\n- 80% (16 €) col TELESCOPIO: Scoperta di nuovi modelli, nuovi prompt e casi mai visti.\n- 20% (4 €) con la CLESSIDRA: Riflessione e re-benchmarking per verificare che le vecchie rotte siano ancora valide e non abbiano subito regressioni silenziose.", "numbers": "80% (16 €) Scoperta / Frontier · 20% (4 €) Riflessione / Re-benchmark", "bridge": "E quando entra una richiesta completamente nuova che non assomiglia a nulla?", "trap": "NON dire che 20€ è il costo di tutta l'azienda: è l'esempio del micro-budget di esplorazione.", "qa": "«Perché il 20% sui vecchi test?» Perché i modelli cloud cambiano sotto il cofano senza preavviso.", "code": "talk/numbers.json (finops.budget_split)"}, {"id": "H", "station": 21, "title": "H · L’ignoto va al Frontier", "act": "ATTO IV · Novelty detection", "target_sec": 815, "key_msg": "La novità è un segnale di rotta: Q → {Q₁..Q₄} → distanza dalla memoria.", "script": "Come riconosciamo un compito ignoto? Prendiamo la query, un modello compatto genera 4 varianti.\nCalcoliamo gli embedding: se cadono dentro i cluster compatti dei nostri workload noti, è lavoro di routine → LOCALE a costo zero.\nSe invece le varianti divergono e restano lontane dalla memoria, la novità è alta: questa richiesta merita il Frontier, perché ci insegnerà qualcosa di nuovo.", "numbers": "4 varianti di query per rilevare la dispersione nello spazio vettoriale", "bridge": "Tutto questo si collega nei workflow aziendali quotidiani.", "trap": "Dichiarare onestamente: la novelty detection con varianti è la VISIONE architetturale del progetto.", "qa": "«Quanto costa generare 4 varianti?» Con un modello da 3B locale, meno di 40 ms.", "code": "switchable_ai/core/domain/novelty.py"}, {"id": "12", "station": 22, "title": "12 · Workflows, Agenti e MCP", "act": "ATTO V · Fieno in cascina", "target_sec": 845, "key_msg": "Dal chatbot alla catena operativa: n8n e server MCP con strumenti dedicati.", "script": "Non stiamo costruendo una chat: costruiamo pipeline operative.\nUn documento arriva in n8n, viene classificato, estratto e indicizzato in 7 secondi.\nE gli agenti intelligenti? Si collegano tramite il server MCP (Model Context Protocol), riutilizzando gli stessi identici strumenti e le stesse regole di sicurezza.", "numbers": "7.0 s per documento · Peso definizioni MCP: ~399 token per richiesta", "bridge": "E ogni dato trattato alimenta il volano.", "trap": "Attenzione al peso dei tool MCP: 399 token solo per dichiarare gli schemi a ogni prompt!", "qa": "«Cos'è MCP?» Il protocollo standard Anthropic per esporre tool e risorse agli agenti.", "code": "switchable_ai/mcp/server.py · infra/n8n/workflows/"}, {"id": "13", "station": 23, "title": "13 · Data Flywheel", "act": "ATTO V · Il volano dei dati", "target_sec": 875, "key_msg": "Il Frontier diventa insegnante: distillazione dal traffico verso il modello locale.", "script": "Il Cloud Frontier non scompare: cambia ruolo. Diventa insegnante.\nLe risposte migliori del cloud vengono anonimizzate, impacchettate e usate per distillare e specializzare i nostri modelli locali.\nIn letteratura (Tsymboi 2026), un modello distillato sul proprio traffico può arrivare a gestire il 50% di tutte le richieste aziendali.", "numbers": "Tsymboi et al. (2026): 50% del traffico gestibile dal modello specializzato", "bridge": "Qual è l'evoluzione nel tempo? Mese 1 contro Mese 12.", "trap": "NON dire che abbiamo già fatto il training completo: abbiamo costruito la pipeline di export.", "qa": "«Come evitate di distillare errori?» Filtrando solo le risposte validate dall'utente o dal QA.", "code": "switchable_ai/infrastructure/flywheel_export.py"}, {"id": "14", "station": 24, "title": "14 · Mese 1 vs Mese 12", "act": "ATTO V · Traiettoria strategica", "target_sec": 900, "key_msg": "Trasformare spesa operativa (OpEx) in asset intellettuale posseduto.", "script": "Mese 1: Conoscenza zero, 80% del budget va in cloud Frontier. Paghiamo per imparare.\nMese 12: La stessa capacità, ma con più conoscenza posseduta in casa. Il locale assorbe il 76% del carico.\nNon prometto un costo assoluto azzerato: prometto che ogni euro speso ha generato un asset che resta nei vostri server.", "numbers": "Mese 1: 82% Cloud · Mese 12: 24% Cloud, 76% Locale posseduto", "bridge": "E adesso torniamo al 96% iniziale: la verità sul TCO.", "trap": "NON promettere costi pari a zero: l'hardware ha un costo di ammortamento e gestione.", "qa": "«E se il modello locale diventa obsoleto?» Lo re-istruisci con le nuove tracce della stiva.", "code": "switchable_ai/benchmarks/results/tco.json"}, {"id": "15", "station": 25, "title": "15 · Il mandato per il C-Suite", "act": "ATTERRAGGIO & CHIUSURA", "target_sec": 900, "key_msg": "Una GPU ferma costa più del cloud. Il punto di pareggio è all'utilizzo (12%).", "script": "Quel 96% iniziale? Eccolo barrato. Una GPU ferma costa PIÙ del cloud!\nSe la scheda lavora al 5% del tempo, il locale costa €10.41/Mtok contro i €4.60 del cloud.\nSe lavora all'80%, crolla a €0.91/Mtok. Il punto di pareggio è intorno al 12% di utilizzo!\nLa domanda giusta non è 'Cloud o Locale?'. La domanda è: 'Quanto lavoro ho da dare a questa macchina?'.\nTre principi da portare a casa: Local when possible. Cloud when needed. Observable always. Grazie!", "numbers": "Pareggio: 12% utilizzo · GPU al 5%: €10.41/Mtok (perde) · GPU all'80%: €0.91/Mtok (vince 5x)", "bridge": "Spazio alle domande del moderatore e del pubblico (5 minuti).", "trap": "RICORDARE la frase finale ad effetto: 'Local when possible. Cloud when needed. Observable always.'", "qa": "«Cosa compro con 2000 €?» Workstation con RTX 4090 o Mac Studio 64GB, ammortizzata in 3 anni.", "code": "talk/CANOVACCIO.md (beat 6.1 e 6.4)"}];
+
 let curIdx = 0;
 let startTime = Date.now();
 let timerRunning = true;
+let totalPausedMs = 0;
+let pauseStart = null;
 const TOTAL_TALK_SEC = 15 * 60;
+let autoAdvanceTimer = null;
+let lastDeckMessageTime = 0;
+let seq = 0;
+let slidePrefix = '';
 
-const chan = new BroadcastChannel('sai-deck');
+window.__presenterBC = new BroadcastChannel('sai-deck');
 
-async function init() {
-  // Carica i dati delle note
-  try {
-    const res = await fetch('deck.html');
-    const text = await res.text();
-    const match = text.match(/window\.DECK_NOTES\s*=\s*(\[[\s\S]*?\]);\s*<\/script>/);
-    if (match) {
-      SLIDES = JSON.parse(match[1]);
-    }
-  } catch (e) {
-    console.error("Impossibile caricare DECK_NOTES:", e);
-  }
-
-  buildList();
-  renderSlide(0);
-
-  chan.onmessage = e => {
-    if (e.data && e.data.type === 'state') {
-      renderSlide(e.data.i);
-    }
-  };
+function sendToDeck(cmd) {
+  try { window.__presenterBC.postMessage(cmd); } catch (e) {}
+  try { localStorage.setItem('sai_deck_cmd', JSON.stringify({ ...cmd, _t: Date.now() })); } catch (e) {}
 }
 
-function buildList() {
-  const ol = document.getElementById('slideList');
+function handleDeckMessage(m) {
+  if (!m) return;
+  lastDeckMessageTime = Date.now();
+  updateDeckConnectionUI(true);
+
+  if (m.type === 'state') {
+    if (autoAdvanceTimer) {
+      clearTimeout(autoAdvanceTimer);
+      autoAdvanceTimer = null;
+    }
+    if (typeof m.i === 'number' && m.i !== curIdx && SLIDES[m.i]) {
+      renderSlide(m.i, false);
+    }
+  } else if (m.type === 'step_handled') {
+    updateStepBadge();
+  }
+}
+
+// Determina se le slide risiedono nella stessa cartella o in slides/
+async function detectSlidePrefix() {
+  if (location.pathname.includes('/switchable-ai-deck/') && !location.pathname.includes('/slides/')) {
+    slidePrefix = 'slides/';
+    return;
+  }
+  try {
+    const res = await fetch('slides/slide_0.html', { method: 'HEAD' });
+    if (res.ok) slidePrefix = 'slides/';
+  } catch (e) {
+    slidePrefix = '';
+  }
+}
+
+function getSlideUrl(sid) {
+  const s = String(sid);
+  const fname = (s.length === 1 && s >= '1' && s <= '9') ? `slide_0${s}.html` : `slide_${s}.html`;
+  return slidePrefix + fname;
+}
+
+// Ridimensionamento dinamico dell'anteprima 1376x768 per calzare il contenitore 16:9
+function fitPreview() {
+  const box = document.getElementById('previewAspectBox');
+  const iframe = document.getElementById('previewFrame');
+  if (!box || !iframe) return;
+  const w = box.clientWidth;
+  const scale = w / 1376;
+  iframe.style.transform = `scale(${scale})`;
+}
+window.addEventListener('resize', fitPreview);
+
+// Inizializzazione
+async function init() {
+  await detectSlidePrefix();
+  buildStationList();
+  renderSlide(0);
+
+  // Orologio a muro
+  setInterval(() => {
+    const d = new Date();
+    document.getElementById('clockWall').textContent = d.toTimeString().split(' ')[0];
+  }, 1000);
+
+  // Ascolto messaggi tramite BroadcastChannel e Storage Event
+  window.__presenterBC.onmessage = e => handleDeckMessage(e.data);
+  window.addEventListener('storage', e => {
+    if (e.key === 'sai_deck_state' && e.newValue) {
+      try { handleDeckMessage(JSON.parse(e.newValue)); } catch (err) {}
+    }
+  });
+
+  // Richiedi lo stato attuale se deck.html è già aperto
+  sendToDeck({ type: 'get_state' });
+
+  // Controlla heartbeat connessione con deck
+  setInterval(() => {
+    const connected = (Date.now() - lastDeckMessageTime) < 12000;
+    updateDeckConnectionUI(connected);
+  }, 3000);
+}
+
+function updateDeckConnectionUI(connected) {
+  const el = document.getElementById('deckStatusBadge');
+  const txt = document.getElementById('deckStatusText');
+  if (connected) {
+    el.className = 'deck-status deck-connected';
+    txt.textContent = 'Proiettore Connesso';
+  } else {
+    el.className = 'deck-status';
+    txt.textContent = 'Modalità Autonoma';
+  }
+}
+
+function buildStationList() {
+  const ol = document.getElementById('stationList');
   ol.innerHTML = '';
   SLIDES.forEach((s, i) => {
     const li = document.createElement('li');
-    li.textContent = `${s.id} · ${s.title.replace(/^\w+\s*·\s*/, '')}`;
+    li.id = `item-station-${i}`;
+    const targetMin = Math.floor(s.target_sec / 60);
+    const targetSec = String(s.target_sec % 60).padStart(2, '0');
+    li.innerHTML = `
+      <span class="station-num-pill">${s.id}</span>
+      <span class="station-item-title">${s.title.replace(/^[^·]*·\s*/, '')}</span>
+      <span class="station-item-target">${targetMin}:${targetSec}</span>
+    `;
     li.onclick = () => {
-      renderSlide(i);
-      chan.postMessage({ type: 'goto', i });
+      renderSlide(i, true);
     };
     ol.appendChild(li);
   });
 }
 
-function renderSlide(i) {
+function renderSlide(i, broadcast = false) {
   if (!SLIDES[i]) return;
   curIdx = i;
   const s = SLIDES[i];
 
-  document.getElementById('actBadge').textContent = `STAZIONE ${s.station}/25 · ${s.act}`;
-  document.getElementById('slideTitle').textContent = s.title;
-  document.getElementById('keyMsg').textContent = `🎯 ${s.key_msg}`;
-  document.getElementById('speechBox').textContent = s.script;
-  document.getElementById('numVal').textContent = s.numbers || '—';
-  document.getElementById('bridgeVal').textContent = s.bridge ? `«${s.bridge}»` : '—';
-  document.getElementById('trapVal').textContent = s.trap || '—';
-  document.getElementById('qaVal').textContent = s.qa || '—';
+  // Header
+  document.getElementById('headStationBadge').textContent = `STAZIONE ${s.station} / ${SLIDES.length}`;
+  document.getElementById('headTitle').textContent = s.title;
 
+  // Centro
+  document.getElementById('mainActBadge').textContent = s.act;
+  const targetMin = Math.floor(s.target_sec / 60);
+  const targetSec = String(s.target_sec % 60).padStart(2, '0');
+  document.getElementById('mainStationBadge').textContent = `Stazione ${s.station} / ${SLIDES.length} · Target cumulativo: ~${targetMin}:${targetSec}`;
+  document.getElementById('mainSlideTitle').textContent = s.title;
+  document.getElementById('mainKeyMsg').textContent = s.key_msg;
+  document.getElementById('mainSpeechCard').textContent = s.script;
+  document.getElementById('mainNumbers').textContent = s.numbers || '—';
+  document.getElementById('mainBridge').textContent = s.bridge ? `«${s.bridge}»` : '—';
+  document.getElementById('mainTrap').textContent = s.trap || '—';
+  document.getElementById('mainQA').textContent = s.qa || '—';
+
+  // Teaser prossima slide
   const next = SLIDES[i + 1];
-  document.getElementById('nextTitle').textContent = next ? `${next.station}. ${next.title}` : '🏁 Fine Presentazione (Q&A)';
+  if (next) {
+    document.getElementById('nextTeaserTitle').textContent = `${next.station}. ${next.title}`;
+    document.getElementById('nextTeaserBridge').textContent = s.bridge ? `«${s.bridge}»` : `Prepariamo l'ingresso su: ${next.title}`;
+  } else {
+    document.getElementById('nextTeaserTitle').textContent = '🏁 Fine Talk (Spazio al Q&A)';
+    document.getElementById('nextTeaserBridge').textContent = 'Ringrazia la platea e apri le domande con il moderatore.';
+  }
 
-  const items = document.querySelectorAll('#slideList li');
-  items.forEach((el, k) => el.classList.toggle('active', k === i));
+  // Indice attivo
+  document.querySelectorAll('ol.station-list li').forEach((el, k) => {
+    el.classList.toggle('active', k === i);
+  });
+  const activeLi = document.getElementById(`item-station-${i}`);
+  if (activeLi) activeLi.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('indexCounter').textContent = `${i + 1} / ${SLIDES.length}`;
+
+  // Carica anteprima live
+  const frame = document.getElementById('previewFrame');
+  const targetSrc = getSlideUrl(s.id);
+  document.getElementById('previewSlideId').textContent = targetSrc;
+
+  if (frame.getAttribute('data-active-url') !== targetSrc) {
+    frame.setAttribute('data-active-url', targetSrc);
+    frame.src = targetSrc;
+    frame.onload = () => {
+      fitPreview();
+      try {
+        const cw = frame.contentWindow;
+        if (cw) {
+          cw.postMessage({ cmd: 'play' }, '*');
+          if (typeof cw.play === 'function') cw.play();
+        }
+      } catch (err) {}
+      setTimeout(updateStepBadge, 150);
+    };
+  } else {
+    // Già caricata: facciamo ripartire
+    try {
+      const cw = frame.contentWindow;
+      if (cw) {
+        cw.postMessage({ cmd: 'play' }, '*');
+        if (typeof cw.play === 'function') cw.play();
+      }
+    } catch (err) {}
+    setTimeout(updateStepBadge, 150);
+  }
+
+  if (broadcast) {
+    sendToDeck({ type: 'goto', i });
+  }
 }
 
-document.getElementById('btnNext').onclick = () => {
-  if (curIdx < SLIDES.length - 1) {
-    renderSlide(curIdx + 1);
-    chan.postMessage({ type: 'goto', i: curIdx });
-  }
-};
-document.getElementById('btnPrev').onclick = () => {
-  if (curIdx > 0) {
-    renderSlide(curIdx - 1);
-    chan.postMessage({ type: 'goto', i: curIdx });
-  }
-};
-document.getElementById('btnReset').onclick = () => {
-  startTime = Date.now();
-};
+// Telemetria passi della slide in anteprima
+let previewTelemetry = { shown: 0, total: 0, hasMore: true };
 
-window.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-    document.getElementById('btnNext').click();
-  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-    document.getElementById('btnPrev').click();
+// Ascolto messaggi dall'iframe dell'anteprima (funziona ovunque: file://, http://, github pages)
+window.addEventListener('message', e => {
+  const m = e.data || {};
+  if (m.slideReady) {
+    previewTelemetry = { shown: m.shown || 0, total: m.total || 0, hasMore: (m.shown || 0) < (m.total || 0) };
+    updateStepBadge();
+  } else if (m.slideReply) {
+    if (typeof m.shown === 'number' && typeof m.total === 'number') {
+      previewTelemetry = { shown: m.shown, total: m.total, hasMore: !!m.hasMore };
+      updateStepBadge();
+    }
+    if (m.handled === false) {
+      // La slide non ha più blocchi da rivelare o nascondere: cambia stazione
+      if (m.cmd === 'prev' || pendingPrevCmd) {
+        pendingPrevCmd = false;
+        if (curIdx > 0) renderSlide(curIdx - 1, true);
+      } else {
+        if (curIdx < SLIDES.length - 1) renderSlide(curIdx + 1, true);
+      }
+    }
   }
 });
 
-// Timer update
+let pendingPrevCmd = false;
+
+// Aggiorna lo stato del badge passo-passo
+function updateStepBadge() {
+  const badge = document.getElementById('stepBadge');
+  const txt = document.getElementById('stepBadgeText');
+  if (!badge || !txt) return;
+
+  const { shown, total } = previewTelemetry;
+  if (total === 0) {
+    badge.className = 'step-badge status-done';
+    txt.textContent = 'Slide visuale continua (senza frasi a comparsa)';
+  } else if (shown >= total) {
+    badge.className = 'step-badge status-done';
+    txt.textContent = `✅ Tutti i blocchi mostrati (${shown}/${total}) · Prossimo clic: Nuova Slide ⏭`;
+  } else {
+    badge.className = 'step-badge status-active';
+    const nextIdx = shown + 1;
+    txt.innerHTML = `Testi rivelati: <b>${shown} di ${total}</b> · Clicca per svelare blocco ${nextIdx}`;
+  }
+}
+
+// AZIONI DI AVANZAMENTO E CONTROLLO
+function stepNext() {
+  pendingPrevCmd = false;
+  const frame = document.getElementById('previewFrame');
+
+  // Invia al proiettore via BroadcastChannel e Storage
+  sendToDeck({ type: 'next' });
+
+  // Se la slide non ha animazioni di testo o ha già mostrato tutto
+  if (previewTelemetry.total === 0 || (!previewTelemetry.hasMore && previewTelemetry.shown >= previewTelemetry.total)) {
+    if (curIdx < SLIDES.length - 1) {
+      renderSlide(curIdx + 1, true);
+    }
+    return;
+  }
+
+  // Invia all'iframe locale dell'anteprima
+  try {
+    frame.contentWindow?.postMessage({ cmd: 'next', id: ++seq }, '*');
+  } catch (err) {}
+}
+
+function stepPrev() {
+  pendingPrevCmd = true;
+  const frame = document.getElementById('previewFrame');
+
+  // Invia al proiettore via BroadcastChannel e Storage
+  sendToDeck({ type: 'prev' });
+
+  // Se tutti i testi sono già nascosti
+  if (previewTelemetry.shown === 0) {
+    if (curIdx > 0) {
+      renderSlide(curIdx - 1, true);
+    }
+    return;
+  }
+
+  // Invia all'iframe locale dell'anteprima
+  try {
+    frame.contentWindow?.postMessage({ cmd: 'prev', id: ++seq }, '*');
+  } catch (err) {}
+}
+
+function skipNext() {
+  sendToDeck({ type: 'skip_next' });
+  if (curIdx < SLIDES.length - 1) {
+    renderSlide(curIdx + 1, true);
+  }
+}
+
+function skipPrev() {
+  sendToDeck({ type: 'skip_prev' });
+  if (curIdx > 0) {
+    renderSlide(curIdx - 1, true);
+  }
+}
+
+function resetSlide() {
+  sendToDeck({ type: 'reset' });
+  const frame = document.getElementById('previewFrame');
+  try {
+    frame.contentWindow?.postMessage({ cmd: 'play', id: ++seq }, '*');
+  } catch (err) {}
+  previewTelemetry.shown = 0;
+  previewTelemetry.hasMore = previewTelemetry.total > 0;
+  updateStepBadge();
+}
+
+function toggleTimer() {
+  const btn = document.getElementById('btnPauseTimer');
+  if (timerRunning) {
+    timerRunning = false;
+    pauseStart = Date.now();
+    btn.innerHTML = '▶ Riprendi <kbd>T</kbd>';
+    btn.style.color = 'var(--teal)';
+  } else {
+    timerRunning = true;
+    if (pauseStart) {
+      totalPausedMs += (Date.now() - pauseStart);
+      pauseStart = null;
+    }
+    btn.innerHTML = '⏸ Pausa <kbd>T</kbd>';
+    btn.style.color = '';
+  }
+}
+
+function resetTimer() {
+  startTime = Date.now();
+  totalPausedMs = 0;
+  pauseStart = null;
+  document.getElementById('clockDigital').textContent = '00:00';
+  document.getElementById('progressBarFill').style.width = '0%';
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.().catch(() => {});
+  } else {
+    document.exitFullscreen?.().catch(() => {});
+  }
+}
+
+// BINDING PULSANTI
+document.getElementById('btnStepNext').onclick = stepNext;
+document.getElementById('btnStepPrev').onclick = stepPrev;
+document.getElementById('btnSkipNext').onclick = skipNext;
+document.getElementById('btnSkipPrev').onclick = skipPrev;
+document.getElementById('btnResetSlide').onclick = resetSlide;
+document.getElementById('btnPauseTimer').onclick = toggleTimer;
+document.getElementById('btnResetTimer').onclick = resetTimer;
+document.getElementById('btnFullscreen').onclick = toggleFullscreen;
+
+// SCORCIATOIE DA TASTIERA
+window.addEventListener('keydown', e => {
+  if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
+  if (e.key === ' ' || e.key === 'ArrowRight') {
+    if (e.shiftKey) {
+      e.preventDefault();
+      skipNext();
+    } else {
+      e.preventDefault();
+      stepNext();
+    }
+  } else if (e.key === 'ArrowLeft') {
+    if (e.shiftKey) {
+      e.preventDefault();
+      skipPrev();
+    } else {
+      e.preventDefault();
+      stepPrev();
+    }
+  } else if (e.key === 'PageDown' || e.key === 'n' || e.key === 'N') {
+    e.preventDefault();
+    skipNext();
+  } else if (e.key === 'PageUp' || e.key === 'p' || e.key === 'P') {
+    e.preventDefault();
+    skipPrev();
+  } else if (e.key === 'r' || e.key === 'R') {
+    e.preventDefault();
+    resetSlide();
+  } else if (e.key === 't' || e.key === 'T') {
+    e.preventDefault();
+    toggleTimer();
+  } else if (e.key === '0') {
+    e.preventDefault();
+    resetTimer();
+  } else if (e.key === 'f' || e.key === 'F') {
+    e.preventDefault();
+    toggleFullscreen();
+  }
+});
+
+// AGGIORNAMENTO TIMER E RITMO
 setInterval(() => {
   if (!timerRunning) return;
-  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const effectiveNow = Date.now() - totalPausedMs;
+  const elapsed = Math.max(0, Math.floor((effectiveNow - startTime) / 1000));
   const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
   const s = String(elapsed % 60).padStart(2, '0');
-  document.getElementById('clockTime').textContent = `${m}:${s}`;
+  document.getElementById('clockDigital').textContent = `${m}:${s}`;
 
-  const currentSlide = SLIDES[curIdx];
-  const targetSec = currentSlide ? currentSlide.target_sec : 900;
+  const pct = Math.min(100, Math.round((elapsed / TOTAL_TALK_SEC) * 100));
+  document.getElementById('progressBarFill').style.width = `${pct}%`;
+
+  const curSlide = SLIDES[curIdx];
+  const targetSec = curSlide ? curSlide.target_sec : 900;
   const delta = elapsed - targetSec;
 
-  const statusEl = document.getElementById('clockStatus');
+  const statusEl = document.getElementById('clockStatusBadge');
   if (elapsed > TOTAL_TALK_SEC) {
     const qaEl = elapsed - TOTAL_TALK_SEC;
     const qam = String(Math.floor(qaEl / 60)).padStart(2, '0');
     const qas = String(qaEl % 60).padStart(2, '0');
-    statusEl.className = 'clock-status status-late';
+    statusEl.className = 'clock-status-badge status-pace-late';
     statusEl.textContent = `⚠️ Q&A Moderatore: +${qam}:${qas} / 05:00`;
   } else if (delta > 45) {
-    statusEl.className = 'clock-status status-late';
+    statusEl.className = 'clock-status-badge status-pace-late';
     statusEl.textContent = `🔴 In ritardo (+${delta}s rispetto al piano)`;
   } else if (delta > 15) {
-    statusEl.className = 'clock-status status-warn';
+    statusEl.className = 'clock-status-badge status-pace-warn';
     statusEl.textContent = `🟡 Leggero ritardo (+${delta}s)`;
   } else if (delta < -25) {
-    statusEl.className = 'clock-status status-ok';
+    statusEl.className = 'clock-status-badge status-pace-ok';
     statusEl.textContent = `🔵 In anticipo (${Math.abs(delta)}s di margine)`;
   } else {
-    statusEl.className = 'clock-status status-ok';
+    statusEl.className = 'clock-status-badge status-pace-ok';
     statusEl.textContent = `🟢 In ritmo perfetto`;
   }
 }, 500);

@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rented Intelligence</title>
+<title>Slide Pipeline</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;500;600;700&family=Bebas+Neue&family=Inter:wght@400;500;600&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* scena notturna: un solo tema scuro, scelto di proposito (colori espliciti, indipendenti dal tema del visualizzatore) */
 :root{--bg:#000;--ink:#ECE9E1;--muted:#8C9097;--hud:#5ED8FF;color-scheme:dark}
@@ -17,7 +17,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #stage{position:absolute;left:0;top:0;width:1376px;height:768px;transform-origin:0 0}
 #fx,#ov{position:absolute;inset:0;width:100%;height:100%;display:block}
 #text{position:absolute;inset:0;pointer-events:none}
-.ln{position:absolute;white-space:pre;line-height:1}
+.ln{position:absolute;white-space:pre;line-height:1;text-shadow:0 3px 20px rgba(0,0,0,.7)}
 .seg{display:inline-block;white-space:pre;opacity:0;will-change:transform,opacity,filter}
 .w,.c{display:inline-block;white-space:pre}
 .ico{display:inline-block;width:.74em;height:.74em;margin-left:.34em;vertical-align:-.06em;color:var(--hud);opacity:0;filter:drop-shadow(0 0 6px rgba(94,216,255,.55))}
@@ -53,6 +53,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 .st.costruito{background:rgba(63,224,138,.16);color:#6FE7A6;border:1px solid rgba(63,224,138,.45)}
 .st.in-parte{background:rgba(242,165,65,.14);color:#F4BC6E;border:1px solid rgba(242,165,65,.45)}
 .st.visione{background:rgba(94,216,255,.12);color:#8EE3FF;border:1px solid rgba(94,216,255,.4)}
+.st.misurato{background:rgba(255,74,61,.16);color:#FF7B72;border:1px solid rgba(255,74,61,.45)}
+.st.letteratura{background:rgba(94,140,255,.16);color:#A0B8FF;border:1px solid rgba(94,140,255,.45)}
+.st.rented{background:rgba(242,165,65,.16);color:#F2A541;border:1px solid rgba(242,165,65,.45)}
+.st.owned{background:rgba(79,209,188,.16);color:#4FD1BC;border:1px solid rgba(79,209,188,.45)}
 .card.quad{background:none;border:0;box-shadow:none;backdrop-filter:none;padding:44px 28px 0}
 .card.quad::before{display:none}
 .card.quad h3{font-size:25px;font-weight:600;margin:0 0 6px;color:#EDEFF0}
@@ -64,9 +68,17 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 .card.column.amber{--bar-c:#F2A541}
 .card.column.coral{--bar-c:#E2534B}
 .card.column.teal{--bar-c:#4FD1BC}
+.card.column.blue{--bar-c:#3D8BFF}
 .card.column h3{font-size:18.5px;font-weight:700;color:#F3EAD8;margin:0 0 6px;letter-spacing:-.01em}
 .card.column p{font-size:15px;line-height:1.24;margin:0;color:#E6E2D6}
 .card.column .st{margin-bottom:6px}
+.card.mandate{background:rgba(8,16,28,.78);border:1px solid var(--box-c,rgba(94,216,255,.35));border-radius:8px;padding:12px 18px;box-shadow:0 8px 32px rgba(0,0,0,.45);backdrop-filter:blur(6px)}
+.card.mandate::before{display:none}
+.card.mandate.teal{--box-c:rgba(79,209,188,.5)}
+.card.mandate.amber{--box-c:rgba(242,165,65,.5)}
+.card.mandate.blue{--box-c:rgba(61,139,255,.5)}
+.card.mandate h3{font-size:18px;font-weight:700;color:#F3EAD8;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.12);letter-spacing:.01em}
+.card.mandate p{font-size:14.5px;line-height:1.32;margin:0;color:#E6E2D6}
 #reqbar{position:absolute;display:grid;grid-template-columns:auto 1fr;align-content:center;column-gap:12px;row-gap:3px;padding:0 16px;border:1px solid rgba(94,216,255,.35);border-radius:8px;
   background:rgba(2,10,22,.82);font:13.5px ui-monospace,monospace;color:#CFE6EE;opacity:0;transition:opacity .4s;white-space:nowrap;overflow:hidden}
 #reqbar.on{opacity:1}
@@ -397,6 +409,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     if (rot) { el.style.transform = rot; el.style.transformOrigin = '50% 50%'; el.style.top = (y0 + (y1 - y0) / 2 - (L.size || 17) * 1.18 * L.lines.length / 2) + 'px'; }
     el.textContent = L.lines.join('\n');
     if (L.weight) el.style.fontWeight = L.weight;
+    if (L.color) el.style.color = L.color;
+    if (L.family) el.style.fontFamily = L.family.includes(',') ? L.family : `"${L.family}", sans-serif`;
+    if (L.letter_spacing) el.style.letterSpacing = L.letter_spacing;
     document.getElementById('text').appendChild(el);
     const fs = labLights.filter(l => l.br === L.branch && l.f >= 0).map(l => l.f);
     return {el, rot, t: fs.length ? tAt(Math.max(...fs) * 0.92) : ARRIVE, on: false};
@@ -563,11 +578,17 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   }
   for (const r of SCENE.replace || []) {
     const b = TJ.blocks.find(b => b.lines.map(l => l.text).join(' ').includes(r.from)); if (!b) continue;
-    const gap = b.lines.length > 1 ? b.lines[1].baseline - b.lines[0].baseline : b.lines[0].font_px * 1.25;
+    if (r.role) b.role = r.role;
+    const gap = r.gap || (b.lines.length > 1 ? b.lines[1].baseline - b.lines[0].baseline : b.lines[0].font_px * 1.25);
+    const base0 = r.baseline != null ? r.baseline : b.lines[0].baseline;
     b.lines = r.lines.map((text, i) => ({...(b.lines[i] || b.lines[b.lines.length - 1]), text, w: r.w || 0, ...(r.weight ? {weight: r.weight} : {}),
       ...(r.family ? {family: r.family} : {}), ...(r.font_px ? {font_px: r.font_px} : {}),
+      ...(r.color ? {color: r.color} : {}), ...(r.letter_spacing ? {letter_spacing: r.letter_spacing} : {}),
+      ...(r.x != null ? {x: r.x} : {}),
+      ...(r.colors ? {colors: r.colors} : {}),
+      ...(r.fx ? {fx: r.fx} : {}),
       ...(r.align === 'center' ? {center: (b.lines[i] || b.lines[0]).x + (b.lines[i] || b.lines[0]).w / 2} : {}),
-      baseline: b.lines[0].baseline + i * gap}));                          // w = 0: niente adattamento alla larghezza originale
+      baseline: base0 + i * gap}));                          // w = 0: niente adattamento alla larghezza originale
   }
   for (const b of TJ.blocks) {
     let cur = null;
@@ -575,13 +596,19 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
       const d = document.createElement('div'); d.className = 'ln';
       const fs = l.font_px;
       Object.assign(d.style, {left: (l.x - 0.04 * fs) + 'px', top: (l.baseline - 0.87 * fs) + 'px', fontSize: fs + 'px', fontWeight: l.weight, color: l.color});
-      if (l.family) d.style.fontFamily = `"${l.family}", Georgia, serif`;  // carattere dell'originale (scheda)
+      if (l.letter_spacing) d.style.letterSpacing = l.letter_spacing;
+      if (l.family) d.style.fontFamily = l.family.includes(',') ? l.family : `"${l.family}", sans-serif`;
       if (l.center) { d.style.left = l.center + 'px'; d.style.transform = 'translateX(-50%)'; }
       d.dataset.w = l.w;
       const pieces = l.text.split(/(?<=[.!?])\s+/);
       pieces.forEach((pc, k) => {
-        if (!cur) { cur = {role: b.role, segs: [], text: ''}; units.push(cur); }
+        if (!cur) { cur = {role: b.role, segs: [], text: '', fx: l.fx}; units.push(cur); }
         const sp = document.createElement('span'); sp.className = 'seg'; sp.innerHTML = wordsHtml(pc);
+        if (l.colors) {
+          for (const [wrd, col] of Object.entries(l.colors)) {
+            sp.querySelectorAll('.w').forEach(w => { if (w.textContent.includes(wrd)) w.style.color = col; });
+          }
+        }
         d.appendChild(sp); if (k < pieces.length - 1) d.appendChild(document.createTextNode(' '));
         cur.segs.push(sp); cur.text += pc + ' ';
         if (/[.!?]$/.test(pc)) cur = null;
@@ -621,8 +648,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z M8.5 12l2.5 2.5 4.5-5',
     doccheck: 'M6 3h9l3 3v15H6z M9 13l2 2 4-4',
     fork: 'M12 21v-8 M12 13 5.5 6.5 M12 13l6.5-6.5 M5 6h4.5 M5 6v4.5 M19 6h-4.5 M19 6v4.5',
+    database: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3v12c0 1.7-3.6 3-8 3s-8-1.3-8-3V6z M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3 M4 6c0 1.7 3.6 3 8 3s8-1.3 8-3',
   };
-  const iconSvg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k].split(' M').map((p, i) => `<path pathLength="1" d="${i ? 'M' + p : p}"/>`).join('')}</svg>`;
+  const iconSvg = k => ICONS[k] ? `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k].split(' M').map((p, i) => `<path pathLength="1" d="${i ? 'M' + p : p}"/>`).join('')}</svg>` : '';
   const ICON_RULES = SCENE.icons ? SCENE.icons.map(([w, k]) => [new RegExp(w, 'i'), k])
     : [[/costruire|infrastruttura\./i, 'infra'], [/possedere|conoscenza/i, 'key'], [/governa|impatto/i, 'control'], [/rented|affitto/i, 'tag'], [/wealth|ricchezza/i, 'gem']];
   for (const u of units) {
@@ -708,9 +736,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   }
   const E = 'cubic-bezier(.2,.8,.2,1)';
   const FX = {
-    title: sg => sg.animate([{opacity: 0, filter: 'blur(16px)', letterSpacing: '.08em'}, {opacity: 1, filter: 'blur(0)'}], {duration: 1100, easing: 'ease-out', fill: 'both'}),
+    title: sg => { sg.style.opacity = 1; sg.animate([{opacity: 0, filter: 'blur(16px)', letterSpacing: '.08em'}, {opacity: 1, filter: 'blur(0)'}], {duration: 1100, easing: 'ease-out', fill: 'both'}); },
     body: sg => { sg.style.opacity = 1; [...sg.querySelectorAll('.w')].forEach((w, i) => { w.animate([{opacity: 0, transform: 'translateY(45%)'}, {opacity: 1, transform: 'none'}], {duration: 600, delay: i * 80, easing: E, fill: 'both'}); if (w.classList.contains('num')) countUp(w, i * 80); }); },
-    footer: sg => sg.animate([{opacity: 0}, {opacity: 1}], {duration: 900, easing: 'ease-out', fill: 'both'}),
+    footer: sg => { sg.style.opacity = 1; sg.animate([{opacity: 0}, {opacity: 1}], {duration: 900, easing: 'ease-out', fill: 'both'}); },
     // riquadro: il pannello si apre dal bordo sinistro, poi il titolo e le parole del testo salgono
     // voce di lista: spunta disegnata, titolo, parole; poi parte l'effetto collegato sulla scena
     item: row => {
@@ -755,7 +783,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     if (shown.includes(u)) return; shown.push(u);
     if (u.req) showReq(u.req);
     if (u.fx) itemFx.push({u, fx: u.fx, t0: nowT + 500});
-    u.segs.forEach((sg, i) => timers.push(setTimeout(() => FX[u.role] ? FX[u.role](sg) : FX.body(sg), i * 160)));
+    u.segs.forEach((sg, i) => {
+      const fn = () => (FX[u.role] ? FX[u.role](sg) : FX.body(sg));
+      if (i === 0) fn(); else timers.push(setTimeout(fn, i * 160));
+    });
     if (u.icon) {
       const delay = 500 + (u.segs.length - 1) * 160;
       u.icon.animate([{opacity: 0, transform: 'scale(.6)'}, {opacity: 1, transform: 'none'}], {duration: 500, delay, easing: E, fill: 'both'});
@@ -769,7 +800,13 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     if (u.req) showReq([...shown].reverse().find(x => x.req)?.req);
     clearUnit(u); unitEls(u).forEach(el => el.animate([{opacity: 1}, {opacity: 0}], {duration: 220, easing: 'ease-in'}));
   }
-  function nextStep() { timers.forEach(clearTimeout); timers = []; const u = units.find(x => !shown.includes(x)); if (u) reveal(u); }
+  function nextStep() {
+    timers.forEach(clearTimeout); timers = [];
+    shown.forEach(u => u.segs.forEach(sg => { sg.style.opacity = '1'; sg.style.filter = 'none'; }));
+    const u = units.find(x => !shown.includes(x));
+    if (u) reveal(u);
+  }
+  window.nextStep = nextStep; window.play = play; window.units = units; window.shown = shown;
 
   // ---------- regia ----------
   const tFix = q.get('t') ? +q.get('t') : null;
@@ -788,44 +825,86 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     if (!auto) return;
     units.forEach((u, i) => { if (t >= due[i] && !shown.includes(u)) reveal(u); });
   }
-  // modalità incorporata (window.EMBED_MODE, usata da build_deck.py): la presentazione esterna comanda via postMessage
-  //   {cmd:'play'} riparte e si anima · {cmd:'pause'} si ferma · {cmd:'next'|'prev', id} risponde {handled}
+
+  // modalità incorporata: la presentazione esterna (o la console presenter) comanda via postMessage
+  //   {cmd:'play'} riparte e si anima · {cmd:'pause'} si ferma · {cmd:'next'|'prev', id} risponde {handled, shown, total}
   //   handled=false quando la slide non ha più frasi da mostrare/nascondere: allora la presentazione cambia slide
-  const EMBEDDED = !!window.EMBED_MODE;
-  let active = !EMBEDDED;
+  const EMBEDDED = !!window.EMBED_MODE || window.self !== window.top;
+  let active = !window.EMBED_MODE;
+  const reply = (id, handled) => {
+    try {
+      parent.postMessage({
+        slideReply: true,
+        id,
+        handled,
+        shown: shown.length,
+        total: units.length,
+        hasMore: units.some(x => !shown.includes(x))
+      }, '*');
+    } catch (e) {}
+  };
+  addEventListener('message', e => {
+    const m = e.data || {};
+    if (m.cmd === 'play') { active = true; play(); reply(m.id, true); }
+    else if (m.cmd === 'pause') { active = false; reply(m.id, true); }
+    else if (m.cmd === 'next') {
+      const left = units.some(x => !shown.includes(x));
+      if (left) { auto = false; nextStep(); }
+      reply(m.id, left);
+    }
+    else if (m.cmd === 'prev') {
+      const any = shown.length > 0;
+      if (any) { auto = false; hideLast(); }
+      reply(m.id, any);
+    }
+    else if (m.cmd === 'get_info') {
+      reply(m.id, true);
+    }
+  });
+
   if (EMBEDDED) {
-    document.getElementById('hint').remove();
-    addEventListener('message', e => {
-      const m = e.data || {}, reply = handled => parent.postMessage({slideReply: true, id: m.id, handled}, '*');
-      if (m.cmd === 'play') { active = true; play(); }
-      else if (m.cmd === 'pause') active = false;
-      else if (m.cmd === 'next') { const left = units.some(x => !shown.includes(x)); if (left) { auto = false; nextStep(); } reply(left); }
-      else if (m.cmd === 'prev') { const any = shown.length > 0; if (any) { auto = false; hideLast(); } reply(any); }
-    });
-  } else {
-    addEventListener('keydown', e => {
-      if (e.key === 'r' || e.key === 'R') play();
-      else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); auto = false; nextStep(); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); auto = false; hideLast(); }
-      else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
-    });
-    stage.addEventListener('click', () => { auto = false; nextStep(); });
-    setTimeout(() => document.getElementById('hint').style.opacity = 0, 4000);
+    const hint = document.getElementById('hint');
+    if (hint) hint.remove();
   }
+  addEventListener('keydown', e => {
+    if (e.key === 'r' || e.key === 'R') play();
+    else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); auto = false; nextStep(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); auto = false; hideLast(); }
+    else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  });
+  stage.addEventListener('click', () => { auto = false; nextStep(); });
+  setTimeout(() => { const h = document.getElementById('hint'); if (h) h.style.opacity = 0; }, 4000);
+
   function frame(now) {
     if (active) { const t = tFix ?? now - t0; draw(t); fire(t); hazeTick(t); if (tFix === null) autoText(t); }
     requestAnimationFrame(frame);
   }
-  if (!EMBEDDED) play();
-  else { draw(0); parent.postMessage({slideReady: true}, '*'); }          // prima immagine pronta; avvisa la presentazione
+  if (!window.EMBED_MODE) play();
+  else { draw(0); }
+  if (window.self !== window.top) {
+    reply(0, true);
+    parent.postMessage({slideReady: true, shown: shown.length, total: units.length}, '*');
+  }
   if (q.get('final')) {
     timers.forEach(clearTimeout);
-    units.forEach(u => unitEls(u).forEach(el => el.style.opacity = 1));
-    cardEls.forEach(c => { c.el.classList.add('on'); c.el.querySelectorAll('h3,p').forEach(x => x.style.opacity = 1); });
-    lblEls.forEach(L => L.el.style.opacity = 1);
-    document.querySelectorAll('.card.list .chk, .card.chart svg, .card.chart .note, .card .n, .card .st, .card .sub').forEach(x => x.style.opacity = 1);
+    units.forEach(u => unitEls(u).forEach(el => { el.style.transition = 'none'; el.style.opacity = '1'; }));
+    cardEls.forEach(c => { c.el.classList.add('on'); c.el.style.transition = 'none'; c.el.style.opacity = '1'; c.el.querySelectorAll('h3,p').forEach(x => { x.style.transition = 'none'; x.style.opacity = '1'; }); });
+    lblEls.forEach(L => { L.el.style.transition = 'none'; L.el.style.opacity = '1'; });
+    document.querySelectorAll('.card.list .chk, .card.chart svg, .card.chart .note, .card .n, .card .st, .card .sub, .card h3, .card p').forEach(x => { x.style.transition = 'none'; x.style.opacity = '1'; });
     if (reqbar) { const last = RQ.items[RQ.items.length - 1]; showReq(last); }
     units.forEach(u => u.fx && itemFx.push({u, fx: u.fx, t0: (tFix ?? 0) - 1200}));   // anteprima: effetti delle voci attivi
+  }
+  if (q.get('reveal') === 'all') {
+    auto = false;
+    for (const u of units) {
+      shown.push(u);
+      u.segs.forEach(sg => {
+        sg.style.opacity = '1'; sg.style.filter = 'none'; sg.style.transform = 'none';
+        sg.querySelectorAll('.w').forEach(w => { w.style.opacity = '1'; w.style.transform = 'none'; });
+      });
+      if (u.card) u.card.classList.add('on');
+    }
+    lblEls.forEach(L => { L.el.style.opacity = '1'; L.on = true; });
   }
   requestAnimationFrame(frame);
 })();

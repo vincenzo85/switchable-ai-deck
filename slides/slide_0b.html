@@ -826,36 +826,65 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     units.forEach((u, i) => { if (t >= due[i] && !shown.includes(u)) reveal(u); });
   }
 
-  // modalità incorporata (window.EMBED_MODE, usata da build_deck.py): la presentazione esterna comanda via postMessage
-  //   {cmd:'play'} riparte e si anima · {cmd:'pause'} si ferma · {cmd:'next'|'prev', id} risponde {handled}
+  // modalità incorporata: la presentazione esterna (o la console presenter) comanda via postMessage
+  //   {cmd:'play'} riparte e si anima · {cmd:'pause'} si ferma · {cmd:'next'|'prev', id} risponde {handled, shown, total}
   //   handled=false quando la slide non ha più frasi da mostrare/nascondere: allora la presentazione cambia slide
-  const EMBEDDED = !!window.EMBED_MODE;
-  let active = !EMBEDDED;
+  const EMBEDDED = !!window.EMBED_MODE || window.self !== window.top;
+  let active = !window.EMBED_MODE;
+  const reply = (id, handled) => {
+    try {
+      parent.postMessage({
+        slideReply: true,
+        id,
+        handled,
+        shown: shown.length,
+        total: units.length,
+        hasMore: units.some(x => !shown.includes(x))
+      }, '*');
+    } catch (e) {}
+  };
+  addEventListener('message', e => {
+    const m = e.data || {};
+    if (m.cmd === 'play') { active = true; play(); reply(m.id, true); }
+    else if (m.cmd === 'pause') { active = false; reply(m.id, true); }
+    else if (m.cmd === 'next') {
+      const left = units.some(x => !shown.includes(x));
+      if (left) { auto = false; nextStep(); }
+      reply(m.id, left);
+    }
+    else if (m.cmd === 'prev') {
+      const any = shown.length > 0;
+      if (any) { auto = false; hideLast(); }
+      reply(m.id, any);
+    }
+    else if (m.cmd === 'get_info') {
+      reply(m.id, true);
+    }
+  });
+
   if (EMBEDDED) {
-    document.getElementById('hint').remove();
-    addEventListener('message', e => {
-      const m = e.data || {}, reply = handled => parent.postMessage({slideReply: true, id: m.id, handled}, '*');
-      if (m.cmd === 'play') { active = true; play(); }
-      else if (m.cmd === 'pause') active = false;
-      else if (m.cmd === 'next') { const left = units.some(x => !shown.includes(x)); if (left) { auto = false; nextStep(); } reply(left); }
-      else if (m.cmd === 'prev') { const any = shown.length > 0; if (any) { auto = false; hideLast(); } reply(any); }
-    });
-  } else {
-    addEventListener('keydown', e => {
-      if (e.key === 'r' || e.key === 'R') play();
-      else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); auto = false; nextStep(); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); auto = false; hideLast(); }
-      else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
-    });
-    stage.addEventListener('click', () => { auto = false; nextStep(); });
-    setTimeout(() => document.getElementById('hint').style.opacity = 0, 4000);
+    const hint = document.getElementById('hint');
+    if (hint) hint.remove();
   }
+  addEventListener('keydown', e => {
+    if (e.key === 'r' || e.key === 'R') play();
+    else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); auto = false; nextStep(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); auto = false; hideLast(); }
+    else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  });
+  stage.addEventListener('click', () => { auto = false; nextStep(); });
+  setTimeout(() => { const h = document.getElementById('hint'); if (h) h.style.opacity = 0; }, 4000);
+
   function frame(now) {
     if (active) { const t = tFix ?? now - t0; draw(t); fire(t); hazeTick(t); if (tFix === null) autoText(t); }
     requestAnimationFrame(frame);
   }
-  if (!EMBEDDED) play();
-  else { draw(0); parent.postMessage({slideReady: true}, '*'); }          // prima immagine pronta; avvisa la presentazione
+  if (!window.EMBED_MODE) play();
+  else { draw(0); }
+  if (window.self !== window.top) {
+    reply(0, true);
+    parent.postMessage({slideReady: true, shown: shown.length, total: units.length}, '*');
+  }
   if (q.get('final')) {
     timers.forEach(clearTimeout);
     units.forEach(u => unitEls(u).forEach(el => { el.style.transition = 'none'; el.style.opacity = '1'; }));
