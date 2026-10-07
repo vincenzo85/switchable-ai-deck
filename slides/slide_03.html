@@ -262,7 +262,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   // ---------- disegno ----------
   const cv = document.getElementById('fx'); let ctx = cv.getContext('2d');
   const ease = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
-  const SEQ = {scanEnd: 3800, lamps: 3600, hazeIn: 3200, hazePeak: 4600, hazeOut: 6800, light: 5600, lightEnd: 8400, text: 8600};
+  const SEQ = {scanEnd: 3800, lamps: 3600, hazeIn: 3200, hazePeak: 4600, hazeOut: 6800, light: 5600, lightEnd: 8400, text: 600};
 
   function hudBox(r, a, scale, labelA) {
     let [a0, b0, a1, b1] = r.b; const cx = (a0 + a1) / 2, cy = (b0 + b1) / 2;
@@ -591,6 +591,19 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
       baseline: base0 + i * gap}));                          // w = 0: niente adattamento alla larghezza originale
   }
   for (const b of TJ.blocks) {
+    if (b.role === 'footer') {
+      for (const l of b.lines) {
+        const d = document.createElement('div'); d.className = 'ln';
+        const fs = l.font_px;
+        Object.assign(d.style, {left: (l.x - 0.04 * fs) + 'px', top: (l.baseline - 0.87 * fs) + 'px', fontSize: fs + 'px', fontWeight: l.weight, color: l.color, opacity: '0.45', pointerEvents: 'none'});
+        if (l.letter_spacing) d.style.letterSpacing = l.letter_spacing;
+        if (l.family) d.style.fontFamily = l.family.includes(',') ? l.family : `"${l.family}", sans-serif`;
+        if (l.center) { d.style.left = l.center + 'px'; d.style.transform = 'translateX(-50%)'; }
+        d.textContent = l.text;
+        textEl.appendChild(d);
+      }
+      continue;
+    }
     let cur = null;
     for (const l of b.lines) {
       const d = document.createElement('div'); d.className = 'ln';
@@ -812,7 +825,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   const tFix = q.get('t') ? +q.get('t') : null;
   let t0 = performance.now(), auto = true;
   // il testo arriva da solo, una frase alla volta, sullo stesso orologio degli effetti
-  const due = []; { let at = SEQ.text; for (const u of units) { due.push(at); at += u.role === 'title' ? 1000 : (u.role === 'card' || u.role === 'item') ? 2800 : u.role === 'chart' ? 3400 : u.role === 'req' ? 3600 : 1400; } }
+  const due = []; { let atTitle = 600, atBody = SEQ.text; for (const u of units) { if (u.role === 'title') { due.push(atTitle); atTitle += 800; } else { atBody = Math.max(atBody, atTitle); due.push(atBody); atBody += (u.role === 'card' || u.role === 'item') ? 2800 : u.role === 'chart' ? 3400 : u.role === 'req' ? 3600 : 1400; } } }
   function play() {
     timers.forEach(clearTimeout); timers = []; units.forEach(clearUnit); shown = [];
     t0 = performance.now(); auto = true;
