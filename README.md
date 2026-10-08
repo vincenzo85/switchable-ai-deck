@@ -1,94 +1,149 @@
-# Switchable AI Architecture — 3D Presentation Deck
+# Switchable AI — Deck 3D
 
-Presentazione 3D interattiva per l'architettura **Switchable AI** (*«Dalla query alla risposta: build your own pipe»*).
+Presentazione interattiva *«Costruisci il tuo oleodotto — dalla query alla risposta»*: un'unica condotta 3D
+(impress.js) con una copertina e 26 stazioni animate, più una panoramica finale con i QR.
 
-Montata come un'unica pipeline continua in **impress.js**, con 25 stazioni collegate in 3D nello spazio (12 stazioni animate in HTML con player interattivo + 13 stazioni visive ad alta risoluzione).
-
----
-
-## 🌐 Demo Online
-
-- **Presentazione Completa (Deck 3D)**: [https://vincenzo85.github.io/switchable-ai-deck/](https://vincenzo85.github.io/switchable-ai-deck/)
-- **File autonomo (offline)**: basta aprire `index.html` o `deck.html` con un doppio clic in qualsiasi browser moderno (nessuna dipendenza esterna, tutti gli asset e i font sono embedded).
+- **Online**: https://vincenzo85.github.io/switchable-ai-deck/
+- **Codice del progetto**: https://github.com/vincenzo85/switchable-ai
 
 ---
 
-## 🎮 Controlli di Navigazione
+## 🚀 Avvio rapido (consigliato per il palco)
 
-| Tasto / Gesto | Azione |
+Serve solo Python 3 e Chrome/Chromium (o un browser moderno).
+
+```bash
+git clone https://github.com/vincenzo85/switchable-ai-deck.git
+cd switchable-ai-deck
+./avvia_server.sh            # porta 8000 (se occupata usa la successiva)
+./avvia_server.sh 9000       # porta a scelta
+NO_BROWSER=1 ./avvia_server.sh   # solo server, le pagine le apri tu
+```
+
+Lo script avvia un server locale (solo `127.0.0.1`) e apre due finestre:
+
+| Finestra | Indirizzo | A cosa serve |
+|---|---|---|
+| **Deck** | `http://localhost:8000/deck.html` | Va sul proiettore: trascinala sul secondo schermo e premi **F11** |
+| **Console relatore** | `http://localhost:8000/presenter.html` | Resta sul tuo portatile: copione, icone-promemoria, timer, anteprima |
+
+**Ctrl+C** nel terminale ferma il server.
+
+Su **Windows** (o senza lo script): dalla cartella del repo esegui `python -m http.server 8000`
+e apri a mano i due indirizzi qui sopra.
+
+> Deck e console devono essere aperti **dallo stesso indirizzo** (`http://localhost:PORTA/…`):
+> così restano sincronizzati (BroadcastChannel). Con il doppio clic sui file (`file:///`) il deck
+> funziona lo stesso, ma la sincronizzazione con la console non è garantita.
+
+### Prima di salire sul palco
+1. Avvia lo script un paio di minuti prima e lascia il deck sulla **copertina**.
+2. Attendi la scritta **«Pronto · Spazio per iniziare»**: le slide si caricano una alla volta in background
+   (la barra mostra quante sono pronte). Da lì in poi i voli tra le stazioni sono fluidi.
+3. Allarga l'anteprima nella console se serve (vedi sotto) e azzera il timer con **0**.
+
+---
+
+## 🎮 Comandi
+
+### Deck (proiettore)
+| Tasto | Azione |
 |---|---|
-| **→** oppure **Spazio** | **Avanza**: attiva prima le frasi/effetti della slide corrente; esauriti i passaggi, la camera vola lungo il tubo 3D alla stazione successiva |
-| **←** | **Indietro**: riavvolge i passaggi della slide o torna alla stazione precedente |
-| **Clic** | Avanza al passaggio successivo |
-| **F** | Schermo intero (fullscreen) |
+| **→**, **Spazio**, **Invio**, **PagGiù**, clic | Avanti: prima le frasi/effetti della slide, poi il volo alla stazione successiva |
+| **←**, **PagSu**, **Backspace** | Indietro: nasconde l'ultima frase o torna alla stazione precedente |
+| **F11** | Schermo intero del browser |
+
+I telecomandi da presentazione (che inviano PagGiù/PagSu) funzionano senza configurazione.
+
+### Console relatore
+| Tasto / Controllo | Azione |
+|---|---|
+| **Spazio** / **→** | Frase successiva (comanda anche il deck) |
+| **←** | Frase precedente |
+| **Shift+→** / **N** / **PagGiù** | Salta alla slide successiva |
+| **Shift+←** / **P** / **PagSu** | Torna alla slide precedente |
+| **R** | Riavvia la slide corrente |
+| **T** · **0** | Pausa timer · azzera timer |
+| **F** | Schermo intero |
+| Clic sull'indice a destra | Vai direttamente a quella stazione |
+| Barretta tra anteprima e copione | **Trascina** per ingrandire/ridurre l'anteprima, **doppio clic** per ripristinarla, oppure pulsanti **− / +** |
+
+Per ogni slide la console mostra: messaggio chiave, **icone-promemoria** dei concetti (anche quelle
+della prossima stazione), copione parlato, numeri verificati, frase-ponte, trappole da evitare e
+domanda spinosa con risposta.
 
 ---
 
-## 🗺️ Mappa delle 25 Stazioni
+## 🗺️ Le stazioni
 
-### Prologo
-- **0 · Di chi è il tubo?** — Il condotto principale e la domanda di governance sui dati.
-- **1 · Costruire l'infrastruttura** — L'impianto ibrido locale/cloud.
+**Prologo**
 
-### Atto I · L'illusione e le regole
-- **2 · Intelligenza in affitto** — Il costo marginale del cloud e la dipendenza da API esterne.
-- **0b · Economico oggi ≠ per sempre** — La volatilità dei prezzi e il lock-in tecnologico.
-- **3 · Control Plane** — Il gateway centrale di ispezione e routing.
-- **4 · Regole ferree** — Politiche deterministiche di sicurezza e data residency.
-- **5 · Rented Intelligence** — Instradamento mirato su modelli Frontier cloud.
+- [0 · Di chi è il tubo?](slides/slide_0.html) — Non serve sempre un modello migliore. Serve una torre di controllo.
+- [1 · Costruire l’infrastruttura](slides/slide_01.html) — Un'infrastruttura di controllo tra l'applicazione e i modelli.
 
-### Atto II · Il motore locale e i costi
-- **6 · Owned Intelligence** — Hardware proprietario e inferenza locale a costo marginale zero.
-- **7 · RAG locale protetto** — Recupero vettoriale confinato senza dispersione dei dati aziendali.
-- **8 · Matrice di routing** — Decision engine multidimensionale (sensibilità vs complessità).
-- **9 · Paradosso FinOps** — Analisi TCO e punto di pareggio economico.
+**Atto I**
 
-### Atto III · Il sistema impara
-- **A · Ogni richiesta lascia una traccia** — Dalla singola interazione alla creazione di conoscenza.
-- **B · Le tre memorie** — Memoria episodica, semantica e procedurale.
-- **C · Prima le prove dure** — Validazione rigorosa prima del deploy.
-- **D · Il tuo feedback è un sensore** — Rilevamento continuo del segnale operativo.
+- [2 · Intelligenza in affitto](slides/slide_02.html) — In demo vola tutto, in produzione arrivano i vincoli reali.
+- [0b · Economico oggi ≠ per sempre](slides/slide_0b.html) — Un prezzo da commodity non è un contratto con il futuro.
+- [3 · Control Plane](slides/slide_03.html) — Cambia una sola riga: la torre decide la rotta.
+- [4 · Regole ferree](slides/slide_04.html) — La torre non è un LLM: 0 ms di latenza deterministica.
+- [5 · Rented Intelligence](slides/slide_05.html) — Il Cloud è un jet: lo accendi quando devi volare lontano.
 
-### Climax & Telemetria
-- **10 · Stress Test** — Resilienza del sistema, simulazione di turbolenza cloud e degradazione controllata.
-- **11 · Osservabilità** — Telemetria in tempo reale: P95 latency (3.5s) e risparmio documentato (95.7%).
+**Atto Ii**
 
-### Atto IV · Teoria del controllo
-- **E · Il ciclo** — Anello di retroazione tra esecuzione e apprendimento.
-- **F · Esplorare o sfruttare** — Bilanciamento dinamico tra modelli consolidati e nuovi frontier.
-- **G · Anche il budget impara** — Allocazione predittiva dei costi.
-- **H · L'ignoto va al Frontier** — Delegare all'esterno solo ciò che non è ancora standardizzabile.
+- [6 · Owned Intelligence](slides/slide_06.html) — Modello locale on-premise: zero costo per token marginale, privacy assoluta.
+- [7 · RAG locale protetto](slides/slide_07.html) — I documenti aziendali non escono: retrieval locale con hnswlib e nomic-embed.
+- [8 · Matrice di routing](slides/slide_08.html) — Instradare in base a Sensibilità dei dati e Complessità del task.
+- [9 · Paradosso FinOps](slides/slide_09.html) — Risparmio del 96%? È vero, ma è un'illusione se non contate l'hardware.
 
-### Atto V · Automazione & Mandato
-- **12 · Workflows, Agenti e MCP** — Standardizzazione tramite Model Context Protocol (FastMCP) e mitigazione dell'overhead dei token (5x - 28x).
-- **13 · Data Flywheel** — Volano dei dati proprietari.
-- **14 · Mese 1 vs Mese 12** — Evoluzione dell'asset informativo nel tempo.
-- **15 · Il mandato per il C-Suite** — Direttive strategiche di governance per il board.
-- **Panoramica finale** — Vista isometrica globale dell'intera condotta 3D.
+**Atto Iii**
 
----
+- [A · Ogni richiesta lascia una traccia](slides/slide_A.html) — Dalle richieste all'evidenza: ogni interazione diventa dato telemetrico.
+- [B · Le tre memorie](slides/slide_B.html) — Tre livelli separati: la policy cambia senza riscrivere la storia.
+- [C · Prima le prove certe](slides/slide_C.html) — Prima le prove certe deterministiche: test, compilazione e schema validation prima del giudice qualitativo.
+- [D · Il tuo feedback è un sensore](slides/slide_D.html) — Copia, riprova, correzione: i segnali impliciti che guidano il sistema.
 
-## 📂 Slide Singole (Standalone)
+**Climax**
 
-Ogni slide interattiva è disponibile anche in versione singola autonoma nella cartella [`slides/`](slides/):
-- [Slide 1 · Costruire l'infrastruttura](slides/slide_01.html)
-- [Slide 2 · Intelligenza in affitto](slides/slide_02.html)
-- [Slide 3 · Control Plane](slides/slide_03.html)
-- [Slide 4 · Regole ferree](slides/slide_04.html)
-- [Slide 5 · Rented Intelligence](slides/slide_05.html)
-- [Slide 6 · Owned Intelligence](slides/slide_06.html)
-- [Slide 7 · RAG locale protetto](slides/slide_07.html)
-- [Slide 8 · Matrice di routing](slides/slide_08.html)
-- [Slide 9 · Paradosso FinOps](slides/slide_09.html)
-- [Slide 10 · Stress Test](slides/slide_10.html)
-- [Slide 11 · Osservabilità](slides/slide_11.html)
-- [Slide 12 · Workflows, Agenti e MCP](slides/slide_12.html)
+- [10 · Stress Test](slides/slide_10.html) — 100 su 100 servite, fallback automatici e zero violazioni di privacy.
+- [11 · Osservabilità](slides/slide_11.html) — Quello che non misuri non puoi governarlo: Grafana e Langfuse.
+
+**Atto Iv**
+
+- [E · Il ciclo](slides/slide_E.html) — Osserva → Decidi → Esegui → Misura → Impara.
+- [F · Esplorare o sfruttare](slides/slide_F.html) — Addestramento (compro conoscenza) vs Produzione (spendo conoscenza).
+- [G · Il budget è una policy](slides/slide_G.html) — Il budget non è solo un vincolo: è parte della policy di apprendimento.
+- [H · L’ignoto va al Frontier](slides/slide_H.html) — La novità è un segnale di rotta: Q → {Q₁..Q₄} → distanza dalla memoria.
+
+**Atto V**
+
+- [12 · Workflows, Agenti e MCP](slides/slide_12.html) — Dal chatbot alla catena operativa: n8n e server MCP con strumenti dedicati.
+- [13 · Data Flywheel](slides/slide_13.html) — Il Frontier diventa insegnante: distillazione dal traffico verso il modello locale.
+- [14 · Mese 1 vs Mese 12](slides/slide_14.html) — Trasformare spesa operativa (OpEx) in asset intellettuale posseduto.
+
+**Atterraggio & Chiusura**
+
+- [15 · Il mandato per il C-Suite](slides/slide_15.html) — Una GPU ferma costa più del cloud. Il punto di pareggio è all'utilizzo (12%).
+
+**Chiusura & Risorse**
+
+- [16 · La torre di controllo](slides/slide_16.html) — La torre di controllo governa il sistema: codice sorgente aperto, architettura e benchmark riproducibili.
+
+Ogni slide è disponibile anche da sola nella cartella [`slides/`](slides/).
 
 ---
 
-## 🛠️ Stack Tecnologico
+## 📁 Contenuto
 
-- **impress.js** per le transizioni 3D lungo la condotta cilindrica nello spazio vettoriale.
-- **HTML5 Canvas / Web Animations API** per luci geodetiche, particelle, scanner blueprint e foschie di calore.
-- **SVG HUD & Isometric Layers** per cornici wireframe dinamiche e telemetria.
-- **Self-contained**: immagini convertite in base64 e iframe `srcdoc` per consentire l'esecuzione locale immediata con doppio clic (`file:///`).
+```
+deck.html / index.html   presentazione completa, file unico autonomo (immagini incorporate)
+presenter.html           console relatore
+slides/                  le singole slide autonome
+avvia_server.sh          server locale + apertura deck e console
+```
+
+## 🛠️ Tecnologia
+
+- **impress.js** per i voli 3D lungo la condotta.
+- **Canvas / Web Animations API** per scanner, luci, foschie e testi frase per frase.
+- **Autonomo**: immagini in base64 e slide in iframe `srcdoc`, nessuna dipendenza esterna obbligatoria.
