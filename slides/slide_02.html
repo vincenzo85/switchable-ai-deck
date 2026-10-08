@@ -855,8 +855,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
       if (st) st.animate([{opacity: 0}, {opacity: 1}], {duration: 500, delay: 900, fill: 'both'});
       const sub = el.querySelector('.sub');
       if (sub) sub.animate([{opacity: 0, transform: 'translateY(6px)'}, {opacity: 1, transform: 'none'}], {duration: 450, delay: 200, easing: E, fill: 'both'});
-      el.querySelector('h3').animate([{opacity: 0, transform: 'translateY(8px)'}, {opacity: 1, transform: 'none'}], {duration: 500, easing: E, fill: 'both'});
-      el.querySelector('p').animate([{opacity: 1}, {opacity: 1}], {duration: 1, fill: 'both'});
+      // i riquadri QR del finale hanno h4 e nessun paragrafo: senza ?. l'errore fermava l'intero loop della slide
+      el.querySelector('h3, h4')?.animate([{opacity: 0, transform: 'translateY(8px)'}, {opacity: 1, transform: 'none'}], {duration: 500, easing: E, fill: 'both'});
+      el.querySelector('p')?.animate([{opacity: 1}, {opacity: 1}], {duration: 1, fill: 'both'});
       [...el.querySelectorAll('p .w')].forEach((w, i) => { w.animate([{opacity: 0, transform: 'translateY(40%)'}, {opacity: 1, transform: 'none'}], {duration: 450, delay: 200 + i * 28, easing: E, fill: 'both'}); if (w.classList.contains('num')) countUp(w, 200 + i * 28); });
     },
   };
@@ -967,7 +968,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 
   // ---------- 3D Engine (Torre di controllo dist-redteam #25 & Workload Flywheel dist-pipe-it #13) ----------
   const S3D = SCENE.scene3d;
-  let draw3d = () => {}, reset3d = () => {};
+  let draw3d = () => {}, reset3d = () => {}, spinning3d = false, lastT3d = null;
   if (S3D) {
     const cv3d = document.getElementById('c3d');
     const ctx3d = cv3d.getContext('2d');
@@ -1017,6 +1018,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
       oy: S3D.oy ?? 0
     };
     const spin3d = S3D.spin ?? (formName === 'tower' ? 0.04 : 0);
+    spinning3d = spin3d > 0;
     let fwAngle3d = 0, fwSpeed3d = S3D.fwSpeed ?? 0.0007;
 
     function project3d(x, y, z) {
@@ -1183,10 +1185,13 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
     if (active) {
       const t = tFix ?? ((q.get('final') || q.get('reveal') === 'all') ? (now - t0 + 12000) : now - t0);
       draw(t);
-      draw3d(now, t);
+      draw3d(now, t); lastT3d = t;
       fire(t);
       hazeTick(t);
       if (tFix === null && !q.get('final') && q.get('reveal') !== 'all') autoText(t);
+    } else if (spinning3d && lastT3d !== null) {
+      // in pausa (il deck è passato oltre) la scena 3D che ruota continua a girare
+      draw3d(now, lastT3d);
     }
     requestAnimationFrame(frame);
   }
