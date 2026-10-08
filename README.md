@@ -52,6 +52,7 @@ e apri a mano i due indirizzi qui sopra.
 |---|---|
 | **→**, **Spazio**, **Invio**, **PagGiù**, clic | Avanti: prima le frasi/effetti della slide, poi il volo alla stazione successiva |
 | **←**, **PagSu**, **Backspace** | Indietro: nasconde l'ultima frase o torna alla stazione precedente |
+| **V** | Versione breve (18 stazioni) ↔ completa (28); anche con `deck.html?breve` |
 | **F11** | Schermo intero del browser |
 
 I telecomandi da presentazione (che inviano PagGiù/PagSu) funzionano senza configurazione.
@@ -66,6 +67,8 @@ I telecomandi da presentazione (che inviano PagGiù/PagSu) funzionano senza conf
 | **R** | Riavvia la slide corrente |
 | **T** · **0** | Pausa timer · azzera timer |
 | **F** | Schermo intero |
+| **V** o pulsante **BREVE · 18 / COMPLETA · 28** | Cambia versione del talk (anche sul deck): indice, numerazione e tempi seguono la versione |
+| **H** o testo «contatore: on/off» | Mostra/nasconde il contatore grande sopra l'anteprima («2 di 5», poi avviso ambra «prossimo Spazio: nuova slide») |
 | Clic sull'indice a destra | Vai direttamente a quella stazione |
 | Barretta tra anteprima e copione | **Trascina** per ingrandire/ridurre l'anteprima, **doppio clic** per ripristinarla, oppure pulsanti **− / +** |
 
@@ -74,6 +77,10 @@ della prossima stazione), copione parlato, numeri verificati, frase-ponte, trapp
 domanda spinosa con risposta.
 
 ---
+
+### Versione breve (15 minuti)
+18 stazioni, circa 50 secondi l'una: **0 · 1 · 0b · 3 · 4 · 7 · 8 · 9 · B · D · 10 · 11 · E · G · 13 · 14 · 15 · 18**.
+La scelta resta memorizzata nel browser; il deck e la console si allineano da soli.
 
 ## 🗺️ Le stazioni
 
