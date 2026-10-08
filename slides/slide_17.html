@@ -28,6 +28,11 @@ li .id{font:500 12px ui-monospace,monospace;color:var(--amber)}
 .qr h2{margin:18px 0 6px;font-size:22px;font-weight:600}
 .qr p{margin:0;font:500 13px ui-monospace,monospace;color:var(--hud)}
 .qr .n{margin-top:14px;font:400 14px Inter,system-ui,sans-serif;color:var(--muted)}
+.spoiler{position:absolute;right:48px;top:600px;width:292px;padding:12px 14px;border:1px solid rgba(242,165,65,.45);border-radius:10px;
+  background:rgba(242,165,65,.06);font-size:13px;line-height:1.4;color:#C9C6BE;opacity:0;transition:opacity .8s 1.2s}
+.on .spoiler{opacity:1}
+.spoiler b{color:var(--amber)}
+.spoiler .k{display:block;font:600 11px ui-monospace,monospace;letter-spacing:.12em;color:var(--amber);margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -41,6 +46,9 @@ li .id{font:500 12px ui-monospace,monospace;color:var(--amber)}
     <p>vincenzo85.github.io/<br>switchable-ai-deck/<br>bibliografia.html</p>
     <div class="n">Titoli, autori e link ai paper</div>
   </div>
+  <div class="spoiler"><span class="k">SPOILER · BEST PAPER</span>
+    Ogni paper è verificato su <b>Best Paper</b>, un mio progetto che ogni notte indicizza arXiv:
+    <b>oltre 670.000 paper</b> in archivio, <b>~1.100 nuovi</b> per giorno lavorativo.</div>
 </div>
 <script>
 (() => {
