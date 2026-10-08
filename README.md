@@ -1,10 +1,11 @@
 # Switchable AI — Deck 3D
 
 Presentazione interattiva *«Costruisci il tuo oleodotto — dalla query alla risposta»*: un'unica condotta 3D
-(impress.js) con una copertina e 26 stazioni animate, più una panoramica finale con i QR.
+(impress.js) con una copertina e 27 stazioni (l'ultima con tutti i riferimenti bibliografici), più una panoramica finale con i QR.
 
 - **Online**: https://vincenzo85.github.io/switchable-ai-deck/
 - **Codice del progetto**: https://github.com/vincenzo85/switchable-ai
+- **Bibliografia** (27 paper verificati su arXiv): https://vincenzo85.github.io/switchable-ai-deck/bibliografia.html
 
 ---
 
@@ -129,6 +130,8 @@ domanda spinosa con risposta.
 
 - [16 · La torre di controllo](slides/slide_16.html) — La torre di controllo governa il sistema: codice sorgente aperto, architettura e benchmark riproducibili.
 
+- [17 · Riferimenti](slides/slide_17.html) — Tutti i paper citati, con QR verso la [bibliografia completa](bibliografia.html).
+
 Ogni slide è disponibile anche da sola nella cartella [`slides/`](slides/).
 
 ---
@@ -138,6 +141,7 @@ Ogni slide è disponibile anche da sola nella cartella [`slides/`](slides/).
 ```
 deck.html / index.html   presentazione completa, file unico autonomo (immagini incorporate)
 presenter.html           console relatore
+bibliografia.html        i paper citati, con link (pagina del QR)
 slides/                  le singole slide autonome
 avvia_server.sh          server locale + apertura deck e console
 ```

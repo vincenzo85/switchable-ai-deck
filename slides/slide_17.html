@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>17 · Riferimenti</title>
+<style>
+:root{--bg:#03060D;--ink:#ECE9E1;--muted:#8C9097;--hud:#5ED8FF;--amber:#F2A541;color-scheme:dark}
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1376px;height:768px;transform-origin:center;
+  background:radial-gradient(ellipse at 80% 20%,rgba(94,216,255,.08),transparent 55%),var(--bg);
+  color:var(--ink);font-family:Inter,system-ui,sans-serif}
+h1{position:absolute;left:64px;top:40px;margin:0;font:700 52px 'Barlow Condensed',Inter,system-ui,sans-serif;letter-spacing:-.01em}
+.sub{position:absolute;left:64px;top:104px;margin:0;font-size:18px;color:var(--muted)}
+ol{position:absolute;left:64px;top:150px;width:930px;height:590px;margin:0;padding:0;list-style:none;
+  columns:2;column-gap:36px;column-fill:balance;counter-reset:r}
+li{break-inside:avoid;margin:0 0 9px;font-size:14px;line-height:1.32;color:var(--muted);counter-increment:r;
+  padding-left:28px;position:relative;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+li::before{content:counter(r);position:absolute;left:0;top:1px;font:600 11px ui-monospace,monospace;color:var(--hud)}
+li b{color:var(--ink);font-weight:600}
+li .t{color:#C9C6BE}
+li .id{font:500 12px ui-monospace,monospace;color:var(--amber)}
+.on li{opacity:1;transform:none}
+.qr{position:absolute;right:64px;top:190px;width:260px;text-align:center;opacity:0;transition:opacity .8s .6s}
+.on .qr{opacity:1}
+.qr .box{background:#fff;border-radius:12px;padding:14px;box-shadow:0 0 40px rgba(94,216,255,.25)}
+.qr img{display:block;width:100%;height:auto;image-rendering:pixelated}
+.qr h2{margin:18px 0 6px;font-size:22px;font-weight:600}
+.qr p{margin:0;font:500 13px ui-monospace,monospace;color:var(--hud)}
+.qr .n{margin-top:14px;font:400 14px Inter,system-ui,sans-serif;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1>Riferimenti</h1>
+  <p class="sub">Bibliografia del talk · 27 paper verificati su arXiv</p>
+  <ol><li><b>Chen et al.</b> (2023) · <span class="t">FrugalGPT</span> <span class="id">arXiv:2305.05176</span></li><li><b>Ong et al.</b> (2024) · <span class="t">RouteLLM</span> <span class="id">arXiv:2406.18665</span></li><li><b>Ding et al.</b> (2024) · <span class="t">Hybrid LLM</span> <span class="id">arXiv:2404.14618</span></li><li><b>Ding et al.</b> (2025) · <span class="t">BEST-Route</span> <span class="id">arXiv:2506.22716</span></li><li><b>Patel et al.</b> (2026) · <span class="t">Beyond Accuracy and Cost</span> <span class="id">arXiv:2607.18253</span></li><li><b>Lu et al.</b> (2026) · <span class="t">The Routing Plateau</span> <span class="id">arXiv:2606.07587</span></li><li><b>Woisetschläger et al.</b> (2026) · <span class="t">Cost-Optimal LLM Routing with Limited User Feedback under User Satisfaction Guarantees</span> <span class="id">arXiv:2606.19376</span></li><li><b>Zhou et al.</b> (2026) · <span class="t">Agent-as-a-Router</span> <span class="id">arXiv:2606.22902</span></li><li><b>Feng et al.</b> (2026) · <span class="t">LLMRouter</span> <span class="id">arXiv:2608.06867</span></li><li><b>Peng et al.</b> (2026) · <span class="t">Inference Economics of Enterprise Coding Agents</span> <span class="id">arXiv:2607.13080</span></li><li><b>Patil</b> (2026) · <span class="t">Beyond Per-Token Pricing</span> <span class="id">arXiv:2606.11690</span></li><li><b>Pan et al.</b> (2025) · <span class="t">A Cost-Benefit Analysis of On-Premise Large Language Model Deployment</span> <span class="id">arXiv:2509.18101</span></li><li><b>Knoop &amp; Holtmann</b> (2026) · <span class="t">Private LLM Inference on Consumer Blackwell GPUs</span> <span class="id">arXiv:2601.09527</span></li><li><b>Shafran et al.</b> (2025) · <span class="t">Rerouting LLM Routers</span> <span class="id">arXiv:2501.01818</span></li><li><b>Pandey &amp; Singh</b> (2026) · <span class="t">ContinuityBench</span> <span class="id">arXiv:2607.15899</span></li><li><b>Li et al.</b> (2026) · <span class="t">When Is the Same Model Not the Same Service? A Measurement Study of Hosted Open-Weight LLM APIs</span> <span class="id">arXiv:2605.02821</span></li><li><b>Zhang et al.</b> (2026) · <span class="t">Which Model Is Actually Serving You? IRIS</span> <span class="id">arXiv:2607.20860</span></li><li><b>Jiang et al.</b> (2023) · <span class="t">LLMLingua</span> <span class="id">arXiv:2310.05736</span></li><li><b>Song</b> (2026) · <span class="t">Cache-Aware Prompt Compression</span> <span class="id">arXiv:2607.15516</span></li><li><b>Li et al.</b> (2024) · <span class="t">Retrieval Augmented Generation or Long-Context LLMs? A Comprehensive Study and Hybrid Approach</span> <span class="id">arXiv:2407.16833</span></li><li><b>Forment et al.</b> (2026) · <span class="t">The Scaffolding Matters More Than the Interface</span> <span class="id">arXiv:2608.08654</span></li><li><b>Bai et al.</b> (2026) · <span class="t">How Do AI Agents Spend Your Money? Analyzing and Predicting Token Consumption in Agentic Coding Tasks</span> <span class="id">arXiv:2604.22750</span></li><li><b>Tsymboi et al.</b> (2026) · <span class="t">From Production Traffic to Post-Training</span> <span class="id">arXiv:2609.01572</span></li><li><b>Li et al.</b> (2026) · <span class="t">FlyRoute</span> <span class="id">arXiv:2605.22057</span></li><li><b>Hsieh et al.</b> (2023) · <span class="t">Distilling Step-by-Step! Outperforming Larger Language Models with Less Training Data and Smaller Model Sizes</span> <span class="id">arXiv:2305.02301</span></li><li><b>Kwon et al.</b> (2023) · <span class="t">Efficient Memory Management for Large Language Model Serving with PagedAttention</span> <span class="id">arXiv:2309.06180</span></li><li><b>Zhang et al.</b> (2026) · <span class="t">InceptionRAG</span> <span class="id">arXiv:2609.16818</span></li></ol>
+  <div class="qr">
+    <div class="box"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MSA0MSIgd2lkdGg9IjQxIiBoZWlnaHQ9IjQxIiBjbGFzcz0ic2Vnbm8iPjxwYXRoIGNsYXNzPSJxcmxpbmUiIHN0cm9rZT0iIzAwMCIgZD0iTTIgMi41aDdtMiAwaDFtMSAwaDRtMSAwaDFtNCAwaDFtMyAwaDFtMiAwaDFtMSAwaDdtLTM3IDFoMW01IDBoMW01IDBoMm0yIDBoM20xIDBoMW0yIDBoNW0yIDBoMW01IDBoMW0tMzcgMWgxbTEgMGgzbTEgMGgxbTEgMGgxbTYgMGgybTQgMGgxbTEgMGgxbTIgMGgxbTEgMGgxbTEgMGgxbTEgMGgzbTEgMGgxbS0zNyAxaDFtMSAwaDNtMSAwaDFtMSAwaDRtMiAwaDRtNSAwaDNtMSAwaDFtMiAwaDFtMSAwaDNtMSAwaDFtLTM3IDFoMW0xIDBoM20xIDBoMW0xIDBoMm0xIDBoMm0xIDBoMW0xIDBoNm0xIDBoMW0xIDBoMm0xIDBoMW0xIDBoMW0xIDBoM20xIDBoMW0tMzcgMWgxbTUgMGgxbTEgMGgybTIgMGgybTEgMGgzbTMgMGgxbTUgMGgxbTIgMGgxbTUgMGgxbS0zNyAxaDdtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDdtLTI5IDFoMW0xIDBoMW0xIDBoMm0xIDBoMW0xIDBoMm0xIDBoM20zIDBoMW0tMjcgMWgxbTEgMGg1bTIgMGgxbTEgMGgxbTIgMGgzbTQgMGgxbTIgMGgzbTMgMGg1bS0zNSAxaDFtMiAwaDNtMSAwaDJtMSAwaDJtMSAwaDFtMSAwaDFtMSAwaDJtMSAwaDFtMSAwaDFtMSAwaDJtMiAwaDFtMiAwaDFtMyAwaDFtLTM2IDFoMW0xIDBoMW0zIDBoMW0xIDBoMW0zIDBoMW0yIDBoMm0xIDBoMm0yIDBoMW0xIDBoMW0yIDBoNG0xIDBoMW0yIDBoMm0tMzcgMWgxbTQgMGgxbTMgMGgxbTUgMGgxbTIgMGg0bTIgMGgxbTIgMGgxbTggMGgxbS0zNCAxaDFtMiAwaDJtMiAwaDFtMiAwaDNtMSAwaDFtMSAwaDJtMSAwaDFtMiAwaDFtMSAwaDEwbS0zNiAxaDFtMiAwaDFtMiAwaDJtMSAwaDNtMyAwaDFtMSAwaDNtMiAwaDFtMiAwaDFtMSAwaDFtMiAwaDFtLTMyIDFoMW01IDBoMW0xIDBoMW02IDBoMm0xIDBoMW0xIDBoMW0xIDBoMW0xIDBoMW0yIDBoMW0xIDBoMW0xIDBoM20xIDBoMm0tMzIgMWgxbTEgMGg0bTQgMGgxbTggMGgxbTEgMGgxbTEgMGgxbTEgMGgzbTMgMGgxbS0zNyAxaDFtNSAwaDNtMSAwaDJtMyAwaDFtMiAwaDhtMyAwaDJtMSAwaDFtMSAwaDNtLTM3IDFoM20xIDBoMm0yIDBoNm0xIDBoMm03IDBoMW0zIDBoMW0yIDBoMW0xIDBoMW0xIDBoMW0tMzYgMWgxbTEgMGgybTIgMGgxbTEgMGgxbTIgMGgxbTEgMGgybTMgMGgxbTEgMGgybTIgMGgxbTEgMGgybTMgMGgxbTIgMGgzbS0zNiAxaDFtMiAwaDFtMiAwaDFtMSAwaDFtMyAwaDJtMSAwaDFtNCAwaDJtMyAwaDFtMiAwaDJtMSAwaDFtMyAwaDFtLTM3IDFoNW0xIDBoMm0xIDBoMW0xIDBoMm00IDBoMW00IDBoNG0xIDBoMW0xIDBoMm0xIDBoM20tMzQgMWgxbTEgMGgxbTQgMGgxbTEgMGgybTEgMGgybTEgMGg2bTEgMGgxbTEgMGgxbTIgMGgxbTQgMGgxbS0zMyAxaDJtMyAwaDJtMSAwaDFtNCAwaDRtMiAwaDJtMiAwaDVtMiAwaDNtMSAwaDJtLTM2IDFoMW0xIDBoM20zIDBoM20yIDBoOW00IDBoNm0yIDBoMm0tMzYgMWgybTIgMGgybTEgMGgxbTEgMGgxbTEgMGgybTIgMGgxbTQgMGgxbTIgMGg3bTEgMGgxbTEgMGgybS0zNiAxaDNtMSAwaDJtMiAwaDFtMSAwaDRtMSAwaDFtMiAwaDFtMSAwaDFtMSAwaDJtMSAwaDFtMiAwaDFtMiAwaDFtMSAwaDJtLTM1IDFoMW0xIDBoN20yIDBoMm0yIDBoNW0yIDBoMW0yIDBoNW0yIDBoMW0xIDBoM20tMzcgMWgxbTEgMGgxbTEgMGgxbTIgMGgxbTIgMGg2bTIgMGg1bTUgMGgxbTQgMGgxbTEgMGgybS0zNyAxaDFtMSAwaDJtMSAwaDNtNCAwaDFtMSAwaDJtMSAwaDFtMSAwaDJtMiAwaDFtMSAwaDEwbTEgMGgxbS0yOSAxaDFtMSAwaDFtMiAwaDFtNCAwaDNtMiAwaDFtMSAwaDFtMSAwaDJtMyAwaDJtLTM0IDFoN200IDBoMW0yIDBoM20xIDBoMW0xIDBoMW0xIDBoMW01IDBoMW0xIDBoMW0xIDBoMW0xIDBoMW0xIDBoMW0tMzcgMWgxbTUgMGgxbTEgMGgybTEgMGgxbTMgMGgybTIgMGgxbTQgMGgxbTMgMGgxbTMgMGgybTEgMGgybS0zNyAxaDFtMSAwaDNtMSAwaDFtMSAwaDJtNSAwaDFtMiAwaDFtMSAwaDEzbTEgMGgxbS0zNSAxaDFtMSAwaDNtMSAwaDFtMSAwaDFtMSAwaDJtMSAwaDFtMSAwaDNtNSAwaDFtMiAwaDFtMSAwaDNtMSAwaDFtMSAwaDFtMSAwaDFtLTM3IDFoMW0xIDBoM20xIDBoMW0xIDBoNW0xIDBoMW01IDBoMW0xIDBoMW0xIDBoNG02IDBoM20tMzcgMWgxbTUgMGgxbTMgMGgybTEgMGgxbTIgMGgxbTEgMGgxbTIgMGgybTMgMGg0bTIgMGgxbTMgMGgxbS0zNyAxaDdtMSAwaDFtMiAwaDRtMiAwaDFtMiAwaDFtMSAwaDFtMSAwaDNtMiAwaDFtMiAwaDUiLz48L3N2Zz4K" alt="QR della bibliografia completa"></div>
+    <h2>Bibliografia completa</h2>
+    <p>vincenzo85.github.io/<br>switchable-ai-deck/<br>bibliografia.html</p>
+    <div class="n">Titoli, autori e link ai paper</div>
+  </div>
+</div>
+<script>
+(() => {
+  const stage = document.getElementById('stage');
+  const fit = () => { stage.style.transform = `translate(-50%,-50%) scale(${Math.min(innerWidth / 1376, innerHeight / 768)})`; };
+  addEventListener('resize', fit); fit();
+  const show = () => { void stage.offsetWidth; stage.classList.add('on'); };
+  if (window.self === window.top) setTimeout(show, 200);
+  // comandi dal deck/console: una sola schermata, quindi avanti e indietro passano oltre
+  const reply = (id, handled) => parent.postMessage({slideReply: true, id, handled, shown: 0, total: 0, hasMore: false}, '*');
+  addEventListener('message', e => {
+    const m = e.data || {};
+    if (m.cmd === 'play') { stage.classList.remove('on'); setTimeout(show, 120); reply(m.id, true); }
+    else if (m.cmd === 'pause') reply(m.id, true);
+    else if (m.cmd === 'next' || m.cmd === 'prev') reply(m.id, false);
+    else if (m.cmd === 'get_info') reply(m.id, true);
+  });
+  if (window.self !== window.top) parent.postMessage({slideReady: true, shown: 0, total: 0}, '*');
+  [...document.querySelectorAll('li')].forEach((li, i) => li.style.transitionDelay = (i * 25) + 'ms');
+})();
+</script>
+</body>
+</html>
