@@ -4,7 +4,6 @@ Presentazione interattiva *«Costruisci il tuo oleodotto — dalla query alla ri
 (impress.js) con una copertina e 28 stazioni (in fondo i riferimenti bibliografici e il gran finale), più una panoramica finale con i QR.
 
 - **Online**: https://vincenzo85.github.io/switchable-ai-deck/
-- **Codice del progetto**: https://github.com/vincenzo85/switchable-ai
 - **Bibliografia** (27 paper verificati su arXiv): https://vincenzo85.github.io/switchable-ai-deck/bibliografia.html
 
 ---
@@ -135,7 +134,7 @@ La scelta resta memorizzata nel browser; il deck e la console si allineano da so
 
 **Chiusura & Risorse**
 
-- [16 · La torre di controllo](slides/slide_16.html) — La torre di controllo governa il sistema: codice sorgente aperto, architettura e benchmark riproducibili.
+- [16 · La torre di controllo](slides/slide_16.html) — La torre di controllo governa il sistema: architettura, routing e benchmark.
 
 - [17 · Riferimenti](slides/slide_17.html) — Tutti i paper citati, con QR verso la [bibliografia completa](bibliografia.html).
 - [18 · Gran finale](slides/slide_18.html) — Torre di controllo e flywheel in 3D, tutti i QR e il best paper del giorno svelato col rullo di tamburi (Spazio).
